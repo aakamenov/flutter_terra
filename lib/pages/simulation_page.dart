@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_terra/models/terrarium.dart';
 
 class SimulationPage extends StatelessWidget {
   @override
@@ -27,12 +28,13 @@ class SimulationPage extends StatelessWidget {
   }
 
   List<Widget> _drawCells(BuildContext context) {
+    final terrarium = Provider.of<Terrarium>(context);
     final rows = <Widget>[];
 
-    for(int row = 0; row < 60; row++) {
+    for(int row = 0; row < Terrarium.gridWidth; row++) {
       final cols = <Widget>[];
       
-      for(int col = 0; col < 60; col++) {
+      for(int col = 0; col < Terrarium.gridHeight; col++) {
         cols.add(Expanded(
           child: Container(
               decoration: BoxDecoration(
