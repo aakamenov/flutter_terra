@@ -1,5 +1,6 @@
 library terrarium;
 
+import 'dart:collection';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ class Cell {
   Creature creature;
 
   bool get isFree => creature == null || creature.isDead;
+  Color get color => creature?.value;
 
   Cell(this.position, this.creature);
 }
@@ -19,16 +21,44 @@ class Terrarium extends ChangeNotifier {
   static final gridHeight = 60;
   static final gridWidth = 60;
 
+  bool get isRunning => _isRunning;
+  bool _isRunning = false;
+
   final List<List<Cell>> _grid = List(gridWidth);
-  Map<String, Creature> _registeredCreatures;
+  HashMap<String, Creature> _registeredCreatures = HashMap();
   Timer _timer;
 
   start(int ms) {
-    _timer = Timer.periodic(Duration(milliseconds: ms), _step());
+    _isRunning = true;
+    _timer = Timer.periodic(Duration(milliseconds: ms), (timer) => _step());
   }
 
   stop() {
+    _isRunning = false;
     _timer.cancel();
+    notifyListeners();
+  }
+
+  Color colorAt(int x, int y) {
+    if(x >= _grid.length) {
+      return Color.fromRGBO(0, 0, 0, 0.0);
+    }
+
+    if(y >= _grid[x].length) {
+      return Color.fromRGBO(0, 0, 0, 0.0);
+    }
+
+    return _grid[x][y].color;
+  }
+
+  bool registerCreature(Creature creature) {
+    if(_registeredCreatures.containsKey(creature.type)) {
+      return false;
+    }
+
+    _registeredCreatures[creature.type] = creature;
+
+    return true;
   }
 
   buildGrid(Map<String, int> distribution) {
@@ -111,8 +141,8 @@ class Terrarium extends ChangeNotifier {
 
     if(!hasChanged)
       stop();
-    else
-      notifyListeners();
+    
+    notifyListeners();
   }
 
   List<Cell> _getNeighbors(Cell cell) {
@@ -123,8 +153,8 @@ class Terrarium extends ChangeNotifier {
 
     final xLo = max(0, pos.x - radius);
     final yLo = max(0, pos.y - radius);
-    final xHi = min(pos.x + radius, gridWidth);
-    final yHi = min(pos.y + radius, gridHeight);
+    final xHi = min(pos.x + radius, gridWidth - 1);
+    final yHi = min(pos.y + radius, gridHeight - 1);
 
     for (var x = xLo; x <= xHi; ++x) {
       for (var y = yLo; y <= yHi; ++y) {

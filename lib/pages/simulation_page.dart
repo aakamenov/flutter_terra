@@ -5,6 +5,8 @@ import 'package:flutter_terra/models/terrarium.dart';
 class SimulationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final terrarium = Provider.of<Terrarium>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Flutter Terra"),
@@ -18,8 +20,10 @@ class SimulationPage extends StatelessWidget {
           children: <Widget>[
             FlatButton(
               color: Colors.deepPurple,
-              child: Text("Start"),
-              onPressed: () {},
+              child: terrarium.isRunning ? Text("Stop") : Text("Start"),
+              onPressed: () {
+                terrarium.isRunning ? terrarium.stop() : terrarium.start(100);
+              },
             )
           ],
         ),
@@ -38,7 +42,8 @@ class SimulationPage extends StatelessWidget {
         cols.add(Expanded(
           child: Container(
               decoration: BoxDecoration(
-                  color: row.isEven ? col.isEven ? Colors.black : Colors.white : col.isEven ? Colors.white : Colors.black
+                  //color: row.isEven ? col.isEven ? Colors.black : Colors.white : col.isEven ? Colors.white : Colors.black
+                  color: terrarium.colorAt(row, col)
               ),
             ),
           ),
