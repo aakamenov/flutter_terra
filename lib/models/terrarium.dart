@@ -12,14 +12,14 @@ class Cell {
   Creature creature;
 
   bool get isFree => creature == null || creature.isDead;
-  Color get color => creature?.value;
+  Color get color => creature?.color;
 
   Cell(this.position, this.creature);
 }
 
 class Terrarium extends ChangeNotifier {
-  static final gridHeight = 60;
-  static final gridWidth = 60;
+  static final gridHeight = 40;
+  static final gridWidth = 40;
 
   bool get isRunning => _isRunning;
   bool _isRunning = false;
@@ -30,7 +30,7 @@ class Terrarium extends ChangeNotifier {
 
   start(int ms) {
     _isRunning = true;
-    _timer = Timer.periodic(Duration(milliseconds: ms), (timer) => _step());
+    _timer = Timer.periodic(Duration(milliseconds: ms), (timer) => step());
   }
 
   stop() {
@@ -39,16 +39,16 @@ class Terrarium extends ChangeNotifier {
     notifyListeners();
   }
 
-  Color colorAt(int x, int y) {
+  Cell cellAt(int x, int y) {
     if(x >= _grid.length) {
-      return Color.fromRGBO(0, 0, 0, 0.0);
+      return null;
     }
 
     if(y >= _grid[x].length) {
-      return Color.fromRGBO(0, 0, 0, 0.0);
+      return null;
     }
 
-    return _grid[x][y].color;
+    return _grid[x][y];
   }
 
   bool registerCreature(Creature creature) {
@@ -91,13 +91,13 @@ class Terrarium extends ChangeNotifier {
     notifyListeners();
   }
 
-  _step() {
+  step() {
     var hasChanged = false;
 
     for(int x = 0; x < gridWidth; x++) {
       for(int y = 0; y < gridHeight; y++) {
         final cell = _grid[x][y];
-
+        
         if(cell.isFree) {
           //Remove the creature if it's dead
           cell.creature = null;
@@ -141,8 +141,8 @@ class Terrarium extends ChangeNotifier {
 
     if(!hasChanged)
       stop();
-    
-    notifyListeners();
+    else
+      notifyListeners();
   }
 
   List<Cell> _getNeighbors(Cell cell) {

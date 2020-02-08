@@ -16,7 +16,7 @@ class ProcessResult {
   ProcessResult.none() : this(ProcessAction.none, null);
 }
 
-class Creature extends ValueNotifier<Color> {
+class Creature {
   ///The creature's type. Must be a unique value for the terrarium.
   final String type;
   ///Energy level that a creature has at the start of its life. 
@@ -35,6 +35,9 @@ class Creature extends ValueNotifier<Color> {
   final double reproduceLevel;
   ///Percentage of a creature's max energy below which it will stop moving.
   final double moveLevel;
+
+  Color get color => _color;
+  Color _color;
 
   static final int maxEnergy = 100;
 
@@ -56,14 +59,14 @@ class Creature extends ValueNotifier<Color> {
   }) : assert(type != null && type != ''),
        assert(initialEnergy <= maxEnergy),
        assert(moveLevel >= 0.0 && moveLevel <= 1.0),
-       assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0),
-       super(color ?? _generateRandomColor()) {
+       assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0) {
     _energy = initialEnergy;
+    _color = color ?? _generateRandomColor();
   }
 
   Creature.clone(Creature c) : this(
     type: c.type,
-    color: c.value,
+    color: c.color,
     initialEnergy: c.initialEnergy, 
     efficiency: c.efficiency, 
     size: c.size, 
