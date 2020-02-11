@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_terra/ui/painters/grid_painter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
+import 'package:flutter_terra/constants.dart';
 import 'dart:collection';
 
 class SimulationPage extends StatelessWidget {
@@ -12,6 +13,14 @@ class SimulationPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Flutter Terra"),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.of(context).pushNamed(Routes.configurationPage);
+            },
+          )
+        ],
       ),
       body: CustomPaint(
         painter: GridPainter(terrarium),
@@ -21,24 +30,24 @@ class SimulationPage extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            FlatButton(
+            RaisedButton(
               color: Colors.deepPurple,
               child: terrarium.isRunning ? Text("Stop") : Text("Start"),
               onPressed: () {
-                terrarium.isRunning ? terrarium.stop() : terrarium.start(2000);
+                terrarium.isRunning ? terrarium.stop() : terrarium.start(500);
               },
             ),
-            FlatButton(
+            RaisedButton(
               color: Colors.deepPurple,
               child: Text("Step"),
-              onPressed: () {
-                terrarium.step();
+              onPressed: terrarium.isRunning ? null : () {
+                 terrarium.step();
               },
             ),
-            FlatButton(
+            RaisedButton(
               color: Colors.deepPurple,
               child: Text("Reset"),
-              onPressed: () {
+              onPressed: terrarium.isRunning ? null : () {
                 final distribution = HashMap<String, int>();
                 distribution['brute'] = 20;
                 distribution['bully'] = 20;

@@ -2,8 +2,10 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/models/terrarium.dart';
+import 'package:flutter_terra/ui/pages/configuration_page.dart';
 import 'package:flutter_terra/ui/pages/simulation_page.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_terra/constants.dart';
 
 void main() => runApp(MyApp());
 
@@ -45,7 +47,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.indigo,
         ),
         routes: {
-          "/": (context) => SimulationPage()
+          Routes.simulationPage: (context) => SimulationPage(),
+          Routes.configurationPage: (context) => ConfigurationPage()
         },
       ),
     );

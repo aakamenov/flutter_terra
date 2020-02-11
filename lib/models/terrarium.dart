@@ -24,8 +24,10 @@ class Terrarium extends ChangeNotifier {
   bool get isRunning => _isRunning;
   bool _isRunning = false;
 
+  Iterable<Creature> get registeredCreatures => _registeredCreatures.values;
+
   final List<List<Cell>> _grid = List(gridWidth);
-  HashMap<String, Creature> _registeredCreatures = HashMap();
+  final HashMap<String, Creature> _registeredCreatures = HashMap();
   Timer _timer;
 
   start(int ms) {
@@ -35,7 +37,10 @@ class Terrarium extends ChangeNotifier {
 
   stop() {
     _isRunning = false;
-    _timer.cancel();
+
+    if(_timer != null)
+      _timer.cancel();
+      
     notifyListeners();
   }
 
@@ -51,8 +56,12 @@ class Terrarium extends ChangeNotifier {
     return _grid[x][y];
   }
 
+  bool containsCreature(String type) {
+    return _registeredCreatures.containsKey(type);
+  }
+
   bool registerCreature(Creature creature) {
-    if(_registeredCreatures.containsKey(creature.type)) {
+    if(containsCreature(creature.type)) {
       return false;
     }
 
