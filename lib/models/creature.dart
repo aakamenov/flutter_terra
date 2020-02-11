@@ -20,7 +20,12 @@ class Creature {
   ///The creature's type. Must be a unique value for the terrarium.
   final String type;
   ///Energy level that a creature has at the start of its life. 
-  final int initialEnergy;
+  int get initialEnergy => _initialEnergy;
+  set initialEnergy(int value) {
+    if(value <= maxEnergy)
+      _initialEnergy = value;
+  }
+  int _initialEnergy;
   ///Conversion ratio of food to energy. 
   ///Food energy × efficiency = gained energy.
   final double efficiency;
@@ -49,7 +54,7 @@ class Creature {
   Creature({
     @required this.type,
     Color color,
-    this.initialEnergy = 50,
+    int initialEnergy = 50,
     this.efficiency = 0.7,
     this.size = 50,
     this.actionRadius = 1,
@@ -60,6 +65,7 @@ class Creature {
        assert(initialEnergy <= maxEnergy),
        assert(moveLevel >= 0.0 && moveLevel <= 1.0),
        assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0) {
+    _initialEnergy = initialEnergy;
     _energy = initialEnergy;
     _color = color ?? _generateRandomColor();
   }

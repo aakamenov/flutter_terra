@@ -31,22 +31,34 @@ class SimulationPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             RaisedButton(
-              color: Colors.deepPurple,
-              child: terrarium.isRunning ? Text("Stop") : Text("Start"),
+              color: terrarium.isRunning ? Colors.red : Colors.green,
+              child: _buildPlayButtonContent(terrarium.isRunning),
               onPressed: () {
                 terrarium.isRunning ? terrarium.stop() : terrarium.start(500);
               },
             ),
             RaisedButton(
-              color: Colors.deepPurple,
-              child: Text("Step"),
+              color: Colors.blueGrey,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Step"),
+                  Icon(Icons.play_arrow)
+                ],
+              ),
               onPressed: terrarium.isRunning ? null : () {
                  terrarium.step();
               },
             ),
             RaisedButton(
-              color: Colors.deepPurple,
-              child: Text("Reset"),
+              color: Colors.red,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text("Reset"),
+                  Icon(Icons.autorenew)
+                ],
+              ),
               onPressed: terrarium.isRunning ? null : () {
                 final distribution = HashMap<String, int>();
                 distribution['brute'] = 20;
@@ -58,6 +70,26 @@ class SimulationPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildPlayButtonContent(bool isRunning) {
+    if(isRunning) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text('Stop'),
+          Icon(Icons.stop)
+        ],
+      );
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text('Start'),
+        Icon(Icons.fast_forward)
+      ],
     );
   }
 }

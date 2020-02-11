@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         theme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.indigo,
+          primarySwatch: Colors.deepOrange
         ),
         routes: {
           Routes.simulationPage: (context) => SimulationPage(),

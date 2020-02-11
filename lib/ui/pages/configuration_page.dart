@@ -8,7 +8,6 @@ class ConfigurationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final terrarium = Provider.of<Terrarium>(context);
-    final creaturesCount = terrarium.registeredCreatures.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -16,19 +15,15 @@ class ConfigurationPage extends StatelessWidget {
       ),
       body: PageView(
         children: <Widget>[
-          //for(var creature in terrarium.registeredCreatures) 
-          //  CreatureConfig(creature)
+          for(var creature in terrarium.registeredCreatures) 
+            CreatureConfig(creature)
         ]
       ),
       bottomNavigationBar: Container(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            if(creaturesCount > 0)
-              Text("Page "),
-              
+          children: <Widget>[       
             RaisedButton(
-              color: Colors.deepPurple,
               child: Text("Add creature"),
               onPressed: () async {
                 final result = await RenameDialog.show(context);
