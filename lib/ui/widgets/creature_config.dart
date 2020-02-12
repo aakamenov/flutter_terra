@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/models/terrarium.dart';
+import 'package:flutter_terra/ui/widgets/numeric_text_field.dart';
 import 'package:flutter_terra/ui/widgets/text_field_slider.dart';
 
 class CreatureConfig extends StatelessWidget {
@@ -21,7 +22,7 @@ class CreatureConfig extends StatelessWidget {
             ],
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text('Initial energy:'),
               TextFieldSlider(
@@ -32,6 +33,34 @@ class CreatureConfig extends StatelessWidget {
                   _creature.initialEnergy = value.toInt();
                 }
               )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('Efficiency (%):'),
+              TextFieldSlider(
+                initialValue: _creature.efficiency * 100,
+                min: 1,
+                max: 100,
+                onChanged: (value) {
+                  _creature.efficiency = value / 100;
+                }
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('Size:'),
+              NumericTextField<int>(
+                initialValue: _creature.size,
+                min: 1,
+                max: 1000,
+                onChanged: (value) {
+                  _creature.size = value;
+                }
+              ),
             ],
           )
         ],

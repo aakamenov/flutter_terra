@@ -28,18 +28,33 @@ class Creature {
   int _initialEnergy;
   ///Conversion ratio of food to energy. 
   ///Food energy × efficiency = gained energy.
-  final double efficiency;
+  double get efficiency => _efficiency;
+  set efficiency(double value) {
+    if(value >= 0.0 && value <= 1.0)
+      _efficiency = value;
+  }
+  double _efficiency;
   ///A creature's size. By default, creatures can only eat creatures smaller than them.
-  final int size;
+  int size;
   ///A creature's vision and movement range for each step.
-  final int actionRadius;
+  int actionRadius;
   ///Number of visible food sources needed before a creature will eat.
-  final int sustainability;
+  int sustainability;
   ///Percentage of a creature's max energy above which it will reproduce.
   ///Used as percentages of [maxEnergy]
-  final double reproduceLevel;
+  double get reproduceLevel => _reproduceLevel;
+  set reproduceLevel(double value) {
+    if(value >= 0.0 && value <= 1.0)
+      _reproduceLevel = value;
+  }
+  double _reproduceLevel;
   ///Percentage of a creature's max energy below which it will stop moving.
-  final double moveLevel;
+  double get moveLevel => _moveLevel;
+  set moveLevel(double value) {
+    if(value >= 0.0 && value <= 1.0)
+      _moveLevel = value;
+  }
+  double _moveLevel;
 
   Color get color => _color;
   Color _color;
@@ -55,18 +70,22 @@ class Creature {
     @required this.type,
     Color color,
     int initialEnergy = 50,
-    this.efficiency = 0.7,
+    efficiency = 0.7,
     this.size = 50,
     this.actionRadius = 1,
     this.sustainability = 2,
-    this.reproduceLevel = 0.70,
-    this.moveLevel = 0.0
+    double reproduceLevel = 0.70,
+    double moveLevel = 0.0
   }) : assert(type != null && type != ''),
        assert(initialEnergy <= maxEnergy),
        assert(moveLevel >= 0.0 && moveLevel <= 1.0),
+       assert(efficiency >= 0.0 && efficiency <= 1.0),
        assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0) {
     _initialEnergy = initialEnergy;
     _energy = initialEnergy;
+    _reproduceLevel = reproduceLevel;
+    _moveLevel = moveLevel;
+    _efficiency = efficiency;
     _color = color ?? _generateRandomColor();
   }
 
