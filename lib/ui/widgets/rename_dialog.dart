@@ -36,7 +36,7 @@ class _RenameDialogState extends State<RenameDialog> {
   @override
   Widget build(BuildContext context) {
     final terrarium = Provider.of<Terrarium>(context);
-    final error = _validateInput(terrarium);
+    final error = validateInput(terrarium);
 
     return AlertDialog(
       title: Text("Creature name"),
@@ -71,7 +71,7 @@ class _RenameDialogState extends State<RenameDialog> {
     );
   }
 
-  String _validateInput(Terrarium terrarium) {
+  String validateInput(Terrarium terrarium) {
     final text = _controller.text;
 
     if(text.isEmpty) {

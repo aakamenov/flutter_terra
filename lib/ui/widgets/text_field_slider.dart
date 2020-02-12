@@ -18,20 +18,20 @@ class TextFieldSlider extends StatefulWidget {
 }
 
 class _TextFieldSliderState extends State<TextFieldSlider> {
-  TextEditingController _controller;
-  double _value;
+  TextEditingController controller;
+  double sliderValue;
 
   @override
   void initState() {
     super.initState();
 
-    _value = widget.initialValue;
-    _controller = TextEditingController()..text = _value.toInt().toString();
+    sliderValue = widget.initialValue;
+    controller = TextEditingController()..text = sliderValue.toInt().toString();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -41,23 +41,23 @@ class _TextFieldSliderState extends State<TextFieldSlider> {
       child: Row(
         children: <Widget>[
           Slider(
-            value: _value,
+            value: sliderValue,
             min: widget.min,
             max: widget.max,
-            onChanged: _sliderChanged
+            onChanged: sliderChanged
           ),
           Expanded(
             child: TextField(
               textAlign: TextAlign.center,
-              inputFormatters: [ TextInputFormatter.withFunction(_validate) ],
-              controller: _controller,
+              inputFormatters: [ TextInputFormatter.withFunction(validate) ],
+              controller: controller,
               keyboardType: const TextInputType.numberWithOptions(decimal: true),
               onSubmitted: (value) {
                 if(value.isEmpty) {
-                  _sliderChanged(widget.min);
+                  sliderChanged(widget.min);
                 }
               },
-              onChanged: _textFieldChanged
+              onChanged: textFieldChanged
             ),
           )
         ],
@@ -65,27 +65,27 @@ class _TextFieldSliderState extends State<TextFieldSlider> {
     );
   }
 
-  _sliderChanged(double value) {
+  sliderChanged(double value) {
     widget.onChanged(value);
 
-    _controller.text = value.toInt().toString();
+    controller.text = value.toInt().toString();
 
     setState(() {
-      _value = value;
+      sliderValue = value;
     });
   }
 
-  _textFieldChanged(String value) {
+  textFieldChanged(String value) {
     final number = double.parse(value);
 
     widget.onChanged(number);
     
     setState(() {
-      _value = number;
+      sliderValue = number;
     });
   }
 
-  TextEditingValue _validate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue validate(TextEditingValue oldValue, TextEditingValue newValue) {
     if(newValue.text.isEmpty)
       return newValue;
 
