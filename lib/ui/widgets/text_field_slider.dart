@@ -37,31 +37,29 @@ class _TextFieldSliderState extends State<TextFieldSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        children: <Widget>[
-          Slider(
-            value: sliderValue,
-            min: widget.min,
-            max: widget.max,
-            onChanged: sliderChanged
+    return Row(
+      children: <Widget>[
+        Slider(
+          value: sliderValue,
+          min: widget.min,
+          max: widget.max,
+          onChanged: sliderChanged
+        ),
+        Expanded(
+          child: TextField(
+            textAlign: TextAlign.center,
+            inputFormatters: [ TextInputFormatter.withFunction(validate) ],
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onSubmitted: (value) {
+              if(value.isEmpty) {
+                sliderChanged(widget.min);
+              }
+            },
+            onChanged: textFieldChanged
           ),
-          Expanded(
-            child: TextField(
-              textAlign: TextAlign.center,
-              inputFormatters: [ TextInputFormatter.withFunction(validate) ],
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: (value) {
-                if(value.isEmpty) {
-                  sliderChanged(widget.min);
-                }
-              },
-              onChanged: textFieldChanged
-            ),
-          )
-        ],
-      )
+        )
+      ],
     );
   }
 

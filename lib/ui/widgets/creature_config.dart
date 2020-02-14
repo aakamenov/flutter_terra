@@ -40,121 +40,95 @@ class _CreatureConfigState extends State<CreatureConfig> {
                   IconButton(icon: Icon(Icons.edit), onPressed: () {})
                 ],
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  const Text('Color:'),
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.only(left: 10),
-                      child: RaisedButton(
-                        onPressed: () async {
-                          await _displayColorPicker(context);
-                          setState(() {});
-                        },
-                        color: widget._creature.color,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Initial energy:'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.initialEnergy.toDouble(),
-                    min: 1,
-                    max: Creature.maxEnergy.toDouble(),
-                    onChanged: (value) {
-                      widget._creature.initialEnergy = value.toInt();
-                    }
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Efficiency (%):'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.efficiency * 100,
-                    min: 1,
-                    max: 100,
-                    onChanged: (value) {
-                      widget._creature.efficiency = value / 100;
-                    }
-                  )
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Size:'),
-                  NumericTextField<int>(
-                    initialValue: widget._creature.size,
-                    min: 1,
-                    max: 1000,
-                    onChanged: (value) {
-                      widget._creature.size = value;
-                    }
+              buildSettingRow(
+                description: 'Color',
+                child:Container(
+                  padding: EdgeInsets.only(left: 10),
+                  child: RaisedButton(
+                    onPressed: () async {
+                      await displayColorPicker(context);
+                      setState(() {});
+                    },
+                    color: widget._creature.color,
                   ),
-                ],
+                )
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Action radius:'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.actionRadius.toDouble(),
-                    min: 1,
-                    max: max(Terrarium.gridHeight, Terrarium.gridWidth).toDouble(),
-                    onChanged: (value) {
-                      widget._creature.actionRadius = value.toInt();
-                    }
-                  )
-                ],
+              buildSettingRow(
+                description: 'Size',
+                child: NumericTextField<int>(
+                  initialValue: widget._creature.size,
+                  min: 1,
+                  max: 1000,
+                  onChanged: (value) {
+                    widget._creature.size = value;
+                  }
+                )
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Sustainability:'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.sustainability.toDouble(),
-                    min: 1,
-                    max: (Terrarium.gridHeight * Terrarium.gridWidth).toDouble(),
-                    onChanged: (value) {
-                      widget._creature.sustainability = value.toInt();
-                    }
-                  )
-                ]
+              buildSettingRow(
+                description: 'Initial energy',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.initialEnergy.toDouble(),
+                  min: 1,
+                  max: Creature.maxEnergy.toDouble(),
+                  onChanged: (value) {
+                    widget._creature.initialEnergy = value.toInt();
+                  }
+                )
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Reproducibility (%):'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.reproduceLevel * 100,
-                    min: 0,
-                    max: 100,
-                    onChanged: (value) {
-                      widget._creature.reproduceLevel = value / 100;
-                    }
-                  )
-                ]
+              buildSettingRow(
+                description: 'Efficiency (%)',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.efficiency * 100,
+                  min: 1,
+                  max: 100,
+                  onChanged: (value) {
+                    widget._creature.efficiency = value / 100;
+                  }
+                )
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text('Move level (%):'),
-                  TextFieldSlider(
-                    initialValue: widget._creature.moveLevel * 100,
-                    min: 0,
-                    max: 100,
-                    onChanged: (value) {
-                      widget._creature.moveLevel = value / 100;
-                    }
-                  )
-                ]
+              buildSettingRow(
+                description: 'Action radius',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.actionRadius.toDouble(),
+                  min: 1,
+                  max: max(Terrarium.gridHeight, Terrarium.gridWidth).toDouble(),
+                  onChanged: (value) {
+                    widget._creature.actionRadius = value.toInt();
+                  }
+                )
+              ),
+              buildSettingRow(
+                description: 'Sustainability',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.sustainability.toDouble(),
+                  min: 1,
+                  max: (Terrarium.gridHeight * Terrarium.gridWidth).toDouble() - 1,
+                  onChanged: (value) {
+                    widget._creature.sustainability = value.toInt();
+                  }
+                )
+              ),
+              buildSettingRow(
+                description: 'Reproducibility (%)',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.reproduceLevel * 100,
+                  min: 0,
+                  max: 100,
+                  onChanged: (value) {
+                    widget._creature.reproduceLevel = value / 100;
+                  }
+                )
+              ),
+              buildSettingRow(
+                description: 'Move level (%)',
+                child: TextFieldSlider(
+                  initialValue: widget._creature.moveLevel * 100,
+                  min: 0,
+                  max: 100,
+                  onChanged: (value) {
+                    widget._creature.moveLevel = value / 100;
+                  }
+                )
               )
             ],
           ),
@@ -163,7 +137,20 @@ class _CreatureConfigState extends State<CreatureConfig> {
     );
   }
 
-  Future<void> _displayColorPicker(BuildContext context) async {
+  Widget buildSettingRow({ String description, Widget child }) {
+    return Flex(
+      direction: Axis.horizontal,
+      children: <Widget>[
+        Expanded(flex: 1, child: Text(description)),
+        Expanded(
+          flex: 3,
+          child: child,
+        )
+      ],
+    );
+  }
+
+  Future<void> displayColorPicker(BuildContext context) async {
     return showDialog(
       context: context,
       child: AlertDialog(

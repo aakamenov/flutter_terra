@@ -37,33 +37,31 @@ class _NumericTextFieldState<T extends num> extends State<NumericTextField<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Row(
-        children: <Widget>[
-          buildButton(false),
-          Expanded(
-            child: TextField(
-              textAlign: TextAlign.center,
-              inputFormatters: [ TextInputFormatter.withFunction(validateTextInput) ],
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              onSubmitted: widget.onChanged == null ? null : (value) {
-                if(value.isEmpty || value == '-') {
-                  controller.text = widget.min.toString();
-                  widget.onChanged(widget.min);
-                } else {
-                  widget.onChanged(validateMinMax(num.tryParse(value)));
-                }
-              },
-              onChanged: widget.onChanged == null ? null : (value) {
-                if(value.isNotEmpty)
-                  widget.onChanged(validateMinMax(num.tryParse(value)));
+    return Row(
+      children: <Widget>[
+        buildButton(false),
+        Expanded(
+          child: TextField(
+            textAlign: TextAlign.center,
+            inputFormatters: [ TextInputFormatter.withFunction(validateTextInput) ],
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onSubmitted: widget.onChanged == null ? null : (value) {
+              if(value.isEmpty || value == '-') {
+                controller.text = widget.min.toString();
+                widget.onChanged(widget.min);
+              } else {
+                widget.onChanged(validateMinMax(num.tryParse(value)));
               }
-            ),
+            },
+            onChanged: widget.onChanged == null ? null : (value) {
+              if(value.isNotEmpty)
+                widget.onChanged(validateMinMax(num.tryParse(value)));
+            }
           ),
-          buildButton(true)
-        ],
-      ),
+        ),
+        buildButton(true)
+      ],
     );
   }
 
