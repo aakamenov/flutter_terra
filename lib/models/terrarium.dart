@@ -113,11 +113,10 @@ class Terrarium extends ChangeNotifier {
           continue;
         }
 
+        hasChanged = true;
+
         final result = cell.creature.process(_getNeighbors(cell));
         final point = result.point;
-
-        if(result.action != ProcessAction.none)
-          hasChanged = true;
 
         switch(result.action) {
           case ProcessAction.move:
