@@ -56,8 +56,7 @@ class Creature {
   }
   double _moveLevel;
 
-  Color get color => _color;
-  Color _color;
+  Color color;
 
   static final int maxEnergy = 100;
 
@@ -68,9 +67,9 @@ class Creature {
 
   Creature({
     @required this.type,
-    Color color,
+    this.color,
     int initialEnergy = 50,
-    efficiency = 0.7,
+    double efficiency = 0.7,
     this.size = 50,
     this.actionRadius = 1,
     this.sustainability = 2,
@@ -86,7 +85,7 @@ class Creature {
     _reproduceLevel = reproduceLevel;
     _moveLevel = moveLevel;
     _efficiency = efficiency;
-    _color = color ?? _generateRandomColor();
+    color = color ?? _generateRandomColor();
   }
 
   Creature.clone(Creature c) : this(

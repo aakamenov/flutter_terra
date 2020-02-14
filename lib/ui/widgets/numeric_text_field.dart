@@ -74,8 +74,8 @@ class _NumericTextFieldState<T extends num> extends State<NumericTextField<T>> {
         minWidth: 20,
         height: 20,
         child: RaisedButton(
-          padding: EdgeInsets.all(0.0),
-          child: isIncrement ? Icon(Icons.add) : Icon(Icons.remove),
+          padding: const EdgeInsets.all(0.0),
+          child: isIncrement ? const Icon(Icons.add) : const Icon(Icons.remove),
           onPressed: isIncrement ? increment : decrement
         ),
       ),

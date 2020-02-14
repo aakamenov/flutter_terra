@@ -12,10 +12,10 @@ class SimulationPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Flutter Terra"),
+        title: const Text("Flutter Terra"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).pushNamed(Routes.configurationPage);
             },
@@ -42,7 +42,7 @@ class SimulationPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("Step"),
+                  const Text("Step"),
                   Icon(Icons.play_arrow)
                 ],
               ),
@@ -55,8 +55,8 @@ class SimulationPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text("Reset"),
-                  Icon(Icons.autorenew)
+                  const Text("Reset"),
+                  const Icon(Icons.autorenew)
                 ],
               ),
               onPressed: terrarium.isRunning ? null : () {
@@ -78,8 +78,8 @@ class SimulationPage extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text('Stop'),
-          Icon(Icons.stop)
+          const Text('Stop'),
+          const Icon(Icons.stop)
         ],
       );
     }
@@ -87,8 +87,8 @@ class SimulationPage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text('Start'),
-        Icon(Icons.fast_forward)
+        const Text('Start'),
+        const Icon(Icons.fast_forward)
       ],
     );
   }

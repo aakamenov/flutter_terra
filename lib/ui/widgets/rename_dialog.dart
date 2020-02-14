@@ -39,7 +39,7 @@ class _RenameDialogState extends State<RenameDialog> {
     final error = validateInput(terrarium);
 
     return AlertDialog(
-      title: Text("Creature name"),
+      title: const Text("Creature name"),
       content: Container(
         child: TextField(
           controller: _controller,
@@ -54,13 +54,13 @@ class _RenameDialogState extends State<RenameDialog> {
       ),
       actions: <Widget>[
         FlatButton(
-          child: Text("Cancel"),
+          child: const Text("Cancel"),
           onPressed: () {
             Navigator.of(context, rootNavigator: true).pop(null);
           },
         ),
         FlatButton(
-          child: Text("OK"),
+          child: const Text("OK"),
           onPressed: error == null && _controller.text.isNotEmpty ?
             () {
               Navigator.of(context, rootNavigator: true).pop(_controller.text);
