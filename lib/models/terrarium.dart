@@ -3,6 +3,7 @@ library terrarium;
 import 'dart:collection';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 part 'creature.dart';
@@ -27,7 +28,7 @@ class Terrarium extends ChangeNotifier {
   Iterable<Creature> get registeredCreatures => _registeredCreatures.values;
 
   final List<List<Cell>> _grid = List(gridWidth);
-  final HashMap<String, Creature> _registeredCreatures = HashMap();
+  final LinkedHashMap<String, Creature> _registeredCreatures = LinkedHashMap();
   Timer _timer;
 
   start(int ms) {
@@ -65,35 +66,60 @@ class Terrarium extends ChangeNotifier {
       return false;
     }
 
-    _registeredCreatures[creature.type] = creature;
+    _registeredCreatures[creature.type] = Creature.clone(creature);
 
     return true;
   }
 
+  Creature getCreature(String type) {
+    if(!containsCreature(type))
+      return null;
+
+    return Creature.clone(_registeredCreatures[type]);
+  }
+
+  unregisterCreature(Creature creature) {
+    _registeredCreatures.removeWhere((k, v) {
+      return k == creature.type;
+    });
+  }
+
   buildGrid(Map<String, int> distribution) {
-    final rand = Random();
-    int totalWeight = distribution.values.fold(0, (currentVal, next) { return currentVal += next; });
+    assert(listEquals(distribution.keys.toList(), _registeredCreatures.keys.toList()));
     
-    final pickRandomCreature = () {
-      var randNum = rand.nextInt(totalWeight);
-
-      for(var key in distribution.keys) {
-        final weight = distribution[key];
-
-        if(randNum < weight)
-          return key;
-
-        randNum -= weight;
+    if(_registeredCreatures.length == 0) {
+      for(int x = 0; x < gridWidth; x++) {
+        _grid[x] = List(gridHeight);
+        
+        for(int y = 0; y < gridHeight; y++) {
+          _grid[x][y] = Cell(Point(x, y), null);
+        }
       }
-
-      return distribution.keys.first; //Shouldn't get to here.
-    };
-
-    for(int x = 0; x < gridWidth; x++) {
-      _grid[x] = List(gridHeight);
+    } else {
+      final rand = Random();
+      int totalWeight = distribution.values.fold(0, (currentVal, next) { return currentVal += next; });
       
-      for(int y = 0; y < gridHeight; y++) {
-        _grid[x][y] = Cell(Point(x, y), Creature.clone(_registeredCreatures[pickRandomCreature()]));
+      final pickRandomCreature = () {
+        var randNum = rand.nextInt(totalWeight);
+
+        for(var key in distribution.keys) {
+          final weight = distribution[key];
+
+          if(randNum < weight)
+            return key;
+
+          randNum -= weight;
+        }
+
+        return distribution.keys.first; //Shouldn't get to here.
+      };
+
+      for(int x = 0; x < gridWidth; x++) {
+        _grid[x] = List(gridHeight);
+        
+        for(int y = 0; y < gridHeight; y++) {
+          _grid[x][y] = Cell(Point(x, y), Creature.clone(_registeredCreatures[pickRandomCreature()]));
+        }
       }
     }
 

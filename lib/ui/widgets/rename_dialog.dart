@@ -3,33 +3,35 @@ import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 
 class RenameDialog extends StatefulWidget {
-  RenameDialog({Key key}) : super(key: key);
+  final String title;
+
+  RenameDialog({this.title});
 
   @override
   _RenameDialogState createState() => _RenameDialogState();
 
-  static Future<String> show(BuildContext context) async {
+  static Future<String> show(BuildContext context, {String title}) async {
     return showDialog<String>(
       context: context,
       builder: (context) {
-        return RenameDialog();
+        return RenameDialog(title: title);
       }
     );
   }
 }
 
 class _RenameDialogState extends State<RenameDialog> {
-  TextEditingController _controller;
+  TextEditingController controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    controller = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -39,10 +41,10 @@ class _RenameDialogState extends State<RenameDialog> {
     final error = validateInput(terrarium);
 
     return AlertDialog(
-      title: const Text("Creature name"),
+      title: Text(widget.title),
       content: Container(
         child: TextField(
-          controller: _controller,
+          controller: controller,
           decoration: InputDecoration(
             labelText: "Enter the creature's name:",
             errorText: error,
@@ -61,9 +63,9 @@ class _RenameDialogState extends State<RenameDialog> {
         ),
         FlatButton(
           child: const Text("OK"),
-          onPressed: error == null && _controller.text.isNotEmpty ?
+          onPressed: error == null && controller.text.isNotEmpty ?
             () {
-              Navigator.of(context, rootNavigator: true).pop(_controller.text);
+              Navigator.of(context, rootNavigator: true).pop(controller.text);
             }
             : null,
         )
@@ -72,7 +74,7 @@ class _RenameDialogState extends State<RenameDialog> {
   }
 
   String validateInput(Terrarium terrarium) {
-    final text = _controller.text;
+    final text = controller.text;
 
     if(text.isEmpty) {
       return null;

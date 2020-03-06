@@ -88,8 +88,8 @@ class Creature {
     color = color ?? _generateRandomColor();
   }
 
-  Creature.clone(Creature c) : this(
-    type: c.type,
+  Creature.clone(Creature c, { String newType }) : this(
+    type: newType == null || newType.isEmpty ? c.type : newType,
     color: c.color,
     initialEnergy: c.initialEnergy, 
     efficiency: c.efficiency, 
