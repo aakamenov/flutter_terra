@@ -6,12 +6,18 @@ class TextFieldSlider extends StatefulWidget {
   final double min;
   final double max;
   final ValueChanged<double> onChanged;
+  final int sliderFlex;
+  final int textFieldFlex;
 
   TextFieldSlider({this.initialValue = 0.0,
     this.min = 0.0,
     this.max = 1.0,
+    this.sliderFlex = 4,
+    this.textFieldFlex = 1,
     @required this.onChanged})
-    : assert(initialValue >= min);
+    : assert(initialValue >= min),
+      assert(sliderFlex >= 1),
+      assert(textFieldFlex >= 1);
 
   @override
   _TextFieldSliderState createState() => _TextFieldSliderState();
@@ -37,15 +43,21 @@ class _TextFieldSliderState extends State<TextFieldSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Flex(
+      mainAxisAlignment: MainAxisAlignment.center,
+      direction: Axis.horizontal,
       children: <Widget>[
-        Slider(
-          value: sliderValue,
-          min: widget.min,
-          max: widget.max,
-          onChanged: sliderChanged
+        Expanded(
+          flex: widget.sliderFlex,
+          child: Slider(
+            value: sliderValue,
+            min: widget.min,
+            max: widget.max,
+            onChanged: sliderChanged
+          ),
         ),
         Expanded(
+          flex: widget.textFieldFlex,
           child: TextField(
             textAlign: TextAlign.center,
             inputFormatters: [ TextInputFormatter.withFunction(validate) ],

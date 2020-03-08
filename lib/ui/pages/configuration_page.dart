@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/ui/widgets/creature_config.dart';
+import 'package:flutter_terra/ui/widgets/distribution_slider.dart';
 import 'package:flutter_terra/ui/widgets/rename_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
-import 'dart:collection';
 
 class ConfigurationPage extends StatefulWidget {
   @override
@@ -30,14 +30,11 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
     final terrarium = Provider.of<Terrarium>(context);
     final creatures = terrarium.registeredCreatures;
 
+    final theme = Theme.of(context);
+
     return WillPopScope(
       onWillPop: () {
-        final distribution = HashMap<String, int>();
-        distribution['brute'] = 20;
-        distribution['bully'] = 20;
-
-        terrarium.buildGrid(distribution);
-
+        terrarium.buildGrid();
         return Future.value(true);
       },
       child: Scaffold(
@@ -64,7 +61,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               ),
             if(creatures.length > 0)
               IconButton(
-                icon: Icon(Icons.delete),
+                icon: const Icon(Icons.delete),
                 onPressed: () async {
                   if(!await confirmDeleteDialog(context))
                     return;
@@ -82,6 +79,37 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             for(var creature in creatures) 
               CreatureConfig(creature)
           ]
+        ),
+        drawer: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              margin: EdgeInsets.zero,
+              child: const Text(
+                "Simulation settings",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: theme.buttonColor
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: theme.primaryColor
+              ),
+              height: 1000,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    DistributionSlider()
+                  ],
+                ),
+              ),
+            )
+          ],
         ),
         bottomNavigationBar: Container(
           child: Row(
@@ -115,16 +143,16 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Delete the current creature?'),
+          title: const Text('Delete the current creature?'),
           actions: <Widget>[
             FlatButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop(false);
               },
             ),
             FlatButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context, rootNavigator: true).pop(true);
               },

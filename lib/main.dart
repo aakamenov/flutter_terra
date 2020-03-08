@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/ui/pages/configuration_page.dart';
@@ -10,36 +8,36 @@ import 'package:flutter_terra/constants.dart';
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<Terrarium>(
-      create: (context) {
-        final terrarium = Terrarium();
-        terrarium.registerCreature(Creature(
-            type: 'brute',
-            color: Color.fromRGBO(0, 255, 255, 1.0),
-            initialEnergy: 10,
-            size: 20
-          )
-        );
-        terrarium.registerCreature(Creature(
-            type: 'bully',
-            color: Color.fromRGBO(241, 196, 15, 1.0),
-            initialEnergy: 20,
-            reproduceLevel: 0.6,
-            sustainability: 3
-          )
-        );
+    final terrarium = Terrarium();
 
-        final distribution = HashMap<String, int>();
-        distribution['brute'] = 20;
-        distribution['bully'] = 20;
+    terrarium.registerCreature(Creature(
+        type: 'brute',
+        color: Color.fromRGBO(0, 255, 255, 1.0),
+        initialEnergy: 10,
+        size: 20
+      )
+    );
+    terrarium.registerCreature(Creature(
+        type: 'bully',
+        color: Color.fromRGBO(241, 196, 15, 1.0),
+        initialEnergy: 20,
+        reproduceLevel: 0.6,
+        sustainability: 3
+      )
+    );
 
-        terrarium.buildGrid(distribution);
+    terrarium.settings.distribution['brute'] = 20;
+    terrarium.settings.distribution['bully'] = 20;
 
-        return terrarium; 
-      },
+    terrarium.buildGrid();
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: terrarium),
+        ChangeNotifierProvider.value(value:terrarium.settings)
+      ],
       child: MaterialApp(
         title: 'Flutter Demo',
         theme: ThemeData(

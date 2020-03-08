@@ -3,7 +3,6 @@ import 'package:flutter_terra/ui/painters/grid_painter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/constants.dart';
-import 'dart:collection';
 
 class SimulationPage extends StatelessWidget {
   @override
@@ -60,11 +59,7 @@ class SimulationPage extends StatelessWidget {
                 ],
               ),
               onPressed: terrarium.isRunning ? null : () {
-                final distribution = HashMap<String, int>();
-                distribution['brute'] = 20;
-                distribution['bully'] = 20;
-
-                terrarium.buildGrid(distribution);
+                terrarium.buildGrid();
               },
             ),
           ],

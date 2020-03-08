@@ -1,12 +1,12 @@
 library terrarium;
 
-import 'dart:collection';
 import 'dart:math';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 part 'creature.dart';
+part 'simulation_settings.dart';
 
 class Cell {
   final Point position;
@@ -28,7 +28,8 @@ class Terrarium extends ChangeNotifier {
   Iterable<Creature> get registeredCreatures => _registeredCreatures.values;
 
   final List<List<Cell>> _grid = List(gridWidth);
-  final LinkedHashMap<String, Creature> _registeredCreatures = LinkedHashMap();
+  final Map<String, Creature> _registeredCreatures = Map();
+  final SimulationSettings settings = SimulationSettings();
   Timer _timer;
 
   start(int ms) {
@@ -68,6 +69,14 @@ class Terrarium extends ChangeNotifier {
 
     _registeredCreatures[creature.type] = Creature.clone(creature);
 
+    if(settings.distribution.length > 0) {
+      final key = settings.distribution.keys.first;
+      settings.distribution[key]--;
+    }
+
+    settings.distribution[creature.type] = 1;
+    settings.notifyListeners();
+
     return true;
   }
 
@@ -82,9 +91,19 @@ class Terrarium extends ChangeNotifier {
     _registeredCreatures.removeWhere((k, v) {
       return k == creature.type;
     });
+
+    if(settings.distribution.length > 1) {
+      final value = settings.distribution.remove(creature.type);
+      final key = settings.distribution.keys.first;
+
+      settings.distribution[key] += value;
+      settings.notifyListeners();
+    }
   }
 
-  buildGrid(Map<String, int> distribution) {
+  buildGrid() {
+    final distribution = settings.distribution;
+
     assert(listEquals(distribution.keys.toList(), _registeredCreatures.keys.toList()));
     
     if(_registeredCreatures.length == 0) {
@@ -97,28 +116,32 @@ class Terrarium extends ChangeNotifier {
       }
     } else {
       final rand = Random();
-      int totalWeight = distribution.values.fold(0, (currentVal, next) { return currentVal += next; });
+      //int totalWeight = distribution.values.fold(0, (currentVal, next) { return currentVal += next; });
       
       final pickRandomCreature = () {
-        var randNum = rand.nextInt(totalWeight);
+        final randNum = rand.nextInt(101);
+        var sum = 0;
 
-        for(var key in distribution.keys) {
-          final weight = distribution[key];
+        for(var entry in distribution.entries) {
+          sum += entry.value;
 
-          if(randNum < weight)
-            return key;
-
-          randNum -= weight;
+          if(sum >= randNum)
+            return entry.key;
         }
 
-        return distribution.keys.first; //Shouldn't get to here.
+        return null;
       };
 
       for(int x = 0; x < gridWidth; x++) {
         _grid[x] = List(gridHeight);
         
         for(int y = 0; y < gridHeight; y++) {
-          _grid[x][y] = Cell(Point(x, y), Creature.clone(_registeredCreatures[pickRandomCreature()]));
+          final type = pickRandomCreature();
+
+          if(type == null)
+            _grid[x][y] = Cell(Point(x, y), null); //Empty cell
+          else
+            _grid[x][y] = Cell(Point(x, y), Creature.clone(_registeredCreatures[type]));
         }
       }
     }
