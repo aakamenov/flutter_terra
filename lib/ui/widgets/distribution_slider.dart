@@ -8,7 +8,7 @@ class DistributionSlider extends StatefulWidget {
   final double width;
 
   DistributionSlider({
-    this.height = 80.0,
+    this.height = 84.0,
     this.width = 300.0
   });
 
@@ -23,6 +23,7 @@ class _DistributionSliderState extends State<DistributionSlider> {
     final terrarium = Provider.of<Terrarium>(context, listen: false);
 
     return Container(
+      margin: EdgeInsets.all(10),
       height: widget.height,
       width: widget.width,
       child: _DistributionSliderRenderObjectWidget(terrarium)
@@ -44,9 +45,11 @@ class _DistributionSliderRenderObjectWidget extends LeafRenderObjectWidget {
 class _RenderDistributionSlider extends RenderBox {
   final Terrarium terrarium;
 
+  Canvas _canvas;
+
   static const double _overlayRadius = 16.0;
   static const double _overlayDiameter = _overlayRadius * 2.0;
-  static const double _thumbRadius = 6.0;
+  static const double _thumbRadius = 8.0;
   static const double _preferredTrackWidth = 300.0;
   static const double _preferredTotalWidth = _preferredTrackWidth + 2 * _overlayDiameter;
 
@@ -70,48 +73,36 @@ class _RenderDistributionSlider extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
+    final trackOffset = Offset(0.0, 2 * _thumbRadius) + offset;
     final trackHeight = size.height - (4 * _thumbRadius);
 
-    final canvas = context.canvas;
+    _canvas = context.canvas;
 
-    _drawBackground(canvas, trackHeight);
-    _drawStripes(canvas, trackHeight);
-
-    var widthOccupied = 0.0;
-
-    for(var entry in terrarium.settings.distribution.entries) {
-      final width = (entry.value * 0.01) * size.width;
-
-      final rect = Rect.fromLTWH(widthOccupied, 0, width, trackHeight);
-      final paint = Paint()
-        ..color = terrarium.getCreature(entry.key).color
-        ..style = PaintingStyle.fill;
-      
-      canvas.drawRect(rect, paint);
-      widthOccupied += width;
-    }
+    _drawBackground(trackHeight, trackOffset);
+    _drawStripes(trackHeight, trackOffset);
+    _drawTrack(trackHeight, trackOffset);
   }
 
-  _drawBackground(Canvas canvas, double trackHeight) {
-    final rect = Rect.fromLTWH(0, 0, size.width, trackHeight);
+  _drawBackground(double trackHeight, Offset offset) {
+    final rect = offset & Size(size.width, trackHeight);
     final background = Paint()
       ..color = Colors.grey[200]
       ..style = PaintingStyle.fill;
 
-    canvas.drawRect(rect, background);
+    _canvas.drawRect(rect, background);
   }
 
-  _drawStripes(Canvas canvas, double trackHeight) {
+  _drawStripes(double trackHeight, Offset offset) {
     final path = Path();
     final lineCount = 10;
     final lineThickness = 2.0;
     final lineSpacing = (trackHeight - (lineCount * lineThickness)) / lineCount + lineThickness;
 
-    var currentY = 0.0;
+    var currentY = offset.dy + lineSpacing;
 
-    for(var i = 0; i < lineCount; i++) {
-      path.moveTo(0, currentY);
-      path.lineTo(size.width, currentY);
+    for(var i = 0; i < lineCount - 1; i++) {
+      path.moveTo(offset.dx, currentY);
+      path.lineTo(size.width + offset.dx, currentY);
 
       currentY += lineSpacing;
     }
@@ -121,6 +112,38 @@ class _RenderDistributionSlider extends RenderBox {
       ..strokeWidth = lineThickness
       ..style = PaintingStyle.stroke;
 
-    canvas.drawPath(path, stripePaint);
+    _canvas.drawPath(path, stripePaint);
+  }
+
+  _drawTrack(double trackHeight, Offset offset) {
+    var widthOccupied = offset.dx;
+    var index = 0;
+
+    for(var entry in terrarium.settings.distribution.entries) {
+      final width = (entry.value * 0.01) * size.width;
+      final rect = Rect.fromLTWH(widthOccupied, offset.dy, width, trackHeight);
+
+      final color = terrarium.getCreature(entry.key).color;
+      final paint = Paint()
+        ..color = color
+        ..style = PaintingStyle.fill;
+      
+      _canvas.drawRect(rect, paint);
+
+      widthOccupied += width;
+
+      final thumbY = index.isEven ? offset.dy - _thumbRadius : (_thumbRadius) + trackHeight + offset.dy;
+      _drawThumb(Offset(widthOccupied, thumbY), color);
+
+      index++;
+    }
+  }
+
+  _drawThumb(Offset offset, Color color) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    _canvas.drawCircle(offset, _thumbRadius, paint);
   }
 }
