@@ -104,7 +104,26 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               child: SingleChildScrollView(
                 child: Column(
                   children: <Widget>[
-                    DistributionSlider()
+                    Consumer<SimulationSettings>(
+                      builder: (context, settings, widget) {
+                        final data = Map<String, DistributionSliderValueData>();
+
+                        for(var entry in settings.distribution.entries) {
+                          data[entry.key] = DistributionSliderValueData(
+                            color: terrarium.getCreature(entry.key).color,
+                            value: entry.value * 0.01
+                          );
+                        }
+
+                        return DistributionSlider<String>(
+                          values: data,
+                          onChanged: (key, value) {
+                            
+                          },
+                        );
+                      },
+                    )
+                    
                   ],
                 ),
               ),

@@ -1,51 +1,75 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_terra/models/terrarium.dart';
 
-class DistributionSlider extends StatefulWidget {
+typedef void DistributionSliderValueChanged<T>(T key, double value);
+
+class DistributionSliderValueData {
+  final Color color;
+  final double value;
+
+  DistributionSliderValueData({ @required this.color, @required this.value });
+}
+
+class DistributionSlider<TKey> extends StatefulWidget {
   final double height;
   final double width;
+  final DistributionSliderValueChanged<TKey> onChanged;
+  final Map<TKey, DistributionSliderValueData> values;
 
   DistributionSlider({
     this.height = 84.0,
-    this.width = 300.0
-  });
+    this.width = 300.0,
+    @required this.onChanged,
+    @required this.values
+  }) :
+    assert(height > 0),
+    assert(width > 0),
+    assert(onChanged != null),
+    assert(values != null);
 
   @override
-  _DistributionSliderState createState() => _DistributionSliderState();
+  _DistributionSliderState<TKey> createState() => _DistributionSliderState<TKey>();
 }
 
-class _DistributionSliderState extends State<DistributionSlider> {
+class _DistributionSliderState<T> extends State<DistributionSlider<T>> {
   @override
-  Widget build(BuildContext context) {
-    final dist = Provider.of<SimulationSettings>(context).distribution;
-    final terrarium = Provider.of<Terrarium>(context, listen: false);
-
+  Widget build(BuildContext context) {  
     return Container(
       margin: EdgeInsets.all(10),
       height: widget.height,
       width: widget.width,
-      child: _DistributionSliderRenderObjectWidget(terrarium)
+      child: _DistributionSliderRenderObjectWidget<T>(
+        values: widget.values,
+        onChanged: widget.onChanged,
+      )
     );
   }
 }
 
-class _DistributionSliderRenderObjectWidget extends LeafRenderObjectWidget {
-  final Terrarium terrarium;
+class _DistributionSliderRenderObjectWidget<T> extends LeafRenderObjectWidget {
+  final Map<T, DistributionSliderValueData> values;
+  final DistributionSliderValueChanged<T> onChanged;
 
-  _DistributionSliderRenderObjectWidget(this.terrarium);
+  _DistributionSliderRenderObjectWidget({ @required this.values, @required this.onChanged});
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return _RenderDistributionSlider(terrarium);
+    return _RenderDistributionSlider<T>(
+      values: values,
+      onChanged: onChanged
+    );
   }
 }
 
-class _RenderDistributionSlider extends RenderBox {
-  final Terrarium terrarium;
+class _RenderDistributionSlider<T> extends RenderBox {
+  final Map<T, DistributionSliderValueData> values; 
+  final DistributionSliderValueChanged<T> onChanged;
 
   Canvas _canvas;
+  HorizontalDragGestureRecognizer _dragGestureRecognizer;
+  double _currentDragPos = 0.0;
+  List<Rect> _thumbRectangles = [];
 
   static const double _overlayRadius = 16.0;
   static const double _overlayDiameter = _overlayRadius * 2.0;
@@ -53,10 +77,19 @@ class _RenderDistributionSlider extends RenderBox {
   static const double _preferredTrackWidth = 300.0;
   static const double _preferredTotalWidth = _preferredTrackWidth + 2 * _overlayDiameter;
 
-  _RenderDistributionSlider(this.terrarium);
+  _RenderDistributionSlider({ @required this.values, @required this.onChanged } ) {
+    _dragGestureRecognizer = HorizontalDragGestureRecognizer()
+      ..onStart = _onDragStart
+      ..onEnd = _onDragEnd
+      ..onUpdate = _onDragUpdate
+      ..onCancel = _onDragCancel;
+  }
 
   @override
   bool get sizedByParent => true;
+
+  @override
+  bool hitTestSelf(Offset position) => true;
 
   @override
   void performResize() {
@@ -72,6 +105,34 @@ class _RenderDistributionSlider extends RenderBox {
   }
 
   @override
+  void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
+    if(event is! PointerDownEvent)
+      return;
+
+    final activeThumb = _thumbRectangles.firstWhere((x) => x.contains(entry.localPosition), orElse: () => null);
+
+    if(activeThumb == null)
+     return;
+    
+    _dragGestureRecognizer.addPointer(event);
+    //_onDragStart(DragStartDetails(localPosition: event.localPosition));
+  }
+
+  void _onDragStart(DragStartDetails details) {
+    _currentDragPos = details.localPosition.dx;
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+  }
+
+  void _onDragUpdate(DragUpdateDetails details) {
+  }
+
+  void _onDragCancel() {
+    _currentDragPos = 0.0;
+  }
+
+  @override
   void paint(PaintingContext context, Offset offset) {
     final trackOffset = Offset(0.0, 2 * _thumbRadius) + offset;
     final trackHeight = size.height - (4 * _thumbRadius);
@@ -83,7 +144,7 @@ class _RenderDistributionSlider extends RenderBox {
     _drawTrack(trackHeight, trackOffset);
   }
 
-  _drawBackground(double trackHeight, Offset offset) {
+  void _drawBackground(double trackHeight, Offset offset) {
     final rect = offset & Size(size.width, trackHeight);
     final background = Paint()
       ..color = Colors.grey[200]
@@ -92,7 +153,7 @@ class _RenderDistributionSlider extends RenderBox {
     _canvas.drawRect(rect, background);
   }
 
-  _drawStripes(double trackHeight, Offset offset) {
+  void _drawStripes(double trackHeight, Offset offset) {
     final path = Path();
     final lineCount = 10;
     final lineThickness = 2.0;
@@ -115,15 +176,15 @@ class _RenderDistributionSlider extends RenderBox {
     _canvas.drawPath(path, stripePaint);
   }
 
-  _drawTrack(double trackHeight, Offset offset) {
+  void _drawTrack(double trackHeight, Offset offset) {
     var widthOccupied = offset.dx;
     var index = 0;
 
-    for(var entry in terrarium.settings.distribution.entries) {
-      final width = (entry.value * 0.01) * size.width;
+    for(var entry in values.entries) {
+      final width = entry.value.value * size.width;
       final rect = Rect.fromLTWH(widthOccupied, offset.dy, width, trackHeight);
 
-      final color = terrarium.getCreature(entry.key).color;
+      final color = entry.value.color;
       final paint = Paint()
         ..color = color
         ..style = PaintingStyle.fill;
@@ -139,11 +200,13 @@ class _RenderDistributionSlider extends RenderBox {
     }
   }
 
-  _drawThumb(Offset offset, Color color) {
+  void _drawThumb(Offset offset, Color color) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
 
     _canvas.drawCircle(offset, _thumbRadius, paint);
+    
+    _thumbRectangles.add(Rect.fromCircle(center: offset, radius: _thumbRadius * 2));
   }
 }
