@@ -59,12 +59,6 @@ class _DistributionSliderState<T> extends State<DistributionSlider<T>> {
   }
 }
 
-class _DistributionVisualData {
-  double fromX;
-  double toX;
-  Rect thumbRectangle;
-}
-
 class _DistributionSliderRenderObjectWidget<T> extends LeafRenderObjectWidget {
   final Map<T, DistributionSliderValueData> values;
   final DistributionSliderValueChanged<T> onChanged;
@@ -87,7 +81,7 @@ class _RenderDistributionSlider<T> extends RenderBox {
   Canvas _canvas;
   HorizontalDragGestureRecognizer _dragGestureRecognizer;
   double _currentDragPos = 0.0;
-  LinkedHashMap<T, _DistributionVisualData> _visualData = LinkedHashMap<T, _DistributionVisualData>();
+  Map<T, Rect> _visualData = {};
   T _activeThumb;
 
   static const double _overlayRadius = 16.0;
@@ -134,7 +128,7 @@ class _RenderDistributionSlider<T> extends RenderBox {
     var closestDistance = double.infinity;
 
     for(var entry in _visualData.entries) {
-      final rect = entry.value.thumbRectangle;
+      final rect = entry.value;
 
       final distance = hitPoint.distanceTo(Point(rect.center.dx, rect.center.dy));
 
@@ -145,7 +139,7 @@ class _RenderDistributionSlider<T> extends RenderBox {
     }
     
     _dragGestureRecognizer.addPointer(event);
-    _currentDragPos = _visualData[_activeThumb].toX;
+    _currentDragPos = _visualData[_activeThumb].center.dx;
   }
 
   void _onDragStart(DragStartDetails details) {
@@ -239,14 +233,8 @@ class _RenderDistributionSlider<T> extends RenderBox {
         ..style = PaintingStyle.fill;
       
       _canvas.drawRect(rect, paint);
-
-      final visualData = _DistributionVisualData()
-        ..fromX = widthOccupied;
         
       widthOccupied += width;
-
-      visualData.toX = widthOccupied;
-      _visualData[entry.key] = visualData;
 
       final thumbY = index.isEven ? offset.dy - _thumbRadius : (_thumbRadius) + trackHeight + offset.dy;
       _drawThumb(Offset(widthOccupied, thumbY), color, entry.key);
@@ -261,6 +249,6 @@ class _RenderDistributionSlider<T> extends RenderBox {
       ..style = PaintingStyle.fill;
     
     _canvas.drawCircle(offset, _thumbRadius, paint);
-    _visualData[key].thumbRectangle = Rect.fromCircle(center: offset, radius: _thumbRadius * 2);
+    _visualData[key] = Rect.fromCircle(center: offset, radius: _thumbRadius * 2);
   }
 }
