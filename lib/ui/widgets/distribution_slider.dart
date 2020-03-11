@@ -1,3 +1,5 @@
+import 'dart:collection';
+import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -6,9 +8,19 @@ typedef void DistributionSliderValueChanged<T>(T key, double value);
 
 class DistributionSliderValueData {
   final Color color;
-  final double value;
 
-  DistributionSliderValueData({ @required this.color, @required this.value });
+  double get value => _value;
+
+  set value(double value) {
+    assert(value >= 0.0 && value <= 1.0);
+    _value = value;
+  }
+
+  double _value;
+
+  DistributionSliderValueData({ @required this.color, @required value }) {
+    this.value = value;
+  }
 }
 
 class DistributionSlider<TKey> extends StatefulWidget {
@@ -47,6 +59,12 @@ class _DistributionSliderState<T> extends State<DistributionSlider<T>> {
   }
 }
 
+class _DistributionVisualData {
+  double fromX;
+  double toX;
+  Rect thumbRectangle;
+}
+
 class _DistributionSliderRenderObjectWidget<T> extends LeafRenderObjectWidget {
   final Map<T, DistributionSliderValueData> values;
   final DistributionSliderValueChanged<T> onChanged;
@@ -69,7 +87,8 @@ class _RenderDistributionSlider<T> extends RenderBox {
   Canvas _canvas;
   HorizontalDragGestureRecognizer _dragGestureRecognizer;
   double _currentDragPos = 0.0;
-  List<Rect> _thumbRectangles = [];
+  LinkedHashMap<T, _DistributionVisualData> _visualData = LinkedHashMap<T, _DistributionVisualData>();
+  T _activeThumb;
 
   static const double _overlayRadius = 16.0;
   static const double _overlayDiameter = _overlayRadius * 2.0;
@@ -109,27 +128,57 @@ class _RenderDistributionSlider<T> extends RenderBox {
     if(event is! PointerDownEvent)
       return;
 
-    final activeThumb = _thumbRectangles.firstWhere((x) => x.contains(entry.localPosition), orElse: () => null);
+    final hitPoint = Point(entry.localPosition.dx, entry.localPosition.dy);
 
-    if(activeThumb == null)
-     return;
+    _activeThumb = _visualData.entries.first.key;
+    var closestDistance = double.infinity;
+
+    for(var entry in _visualData.entries) {
+      final rect = entry.value.thumbRectangle;
+
+      final distance = hitPoint.distanceTo(Point(rect.center.dx, rect.center.dy));
+
+      if(closestDistance > distance) {
+        _activeThumb = entry.key;
+        closestDistance = distance;
+      }
+    }
     
     _dragGestureRecognizer.addPointer(event);
-    //_onDragStart(DragStartDetails(localPosition: event.localPosition));
+    _currentDragPos = _visualData[_activeThumb].toX;
   }
 
   void _onDragStart(DragStartDetails details) {
     _currentDragPos = details.localPosition.dx;
   }
 
-  void _onDragEnd(DragEndDetails details) {
-  }
-
   void _onDragUpdate(DragUpdateDetails details) {
+    assert(_activeThumb != null);
+    assert(values.containsKey(_activeThumb));
+
+    _currentDragPos += details.primaryDelta;
+
+    final currentThumb = values[_activeThumb];
+    final totalOccupied = values.entries.fold<double>(0.0, (current, next) => current += next.value.value);
+
+    final maxValue = 1.0 - (totalOccupied - currentThumb.value);
+    
+    currentThumb.value = (_currentDragPos / size.width).clamp(0.01, maxValue);
+
+    markNeedsPaint();
   }
 
   void _onDragCancel() {
+    _handleDragEnd();
+  }
+
+  void _onDragEnd(DragEndDetails details) {
+    _handleDragEnd();
+  }
+
+  void _handleDragEnd() {
     _currentDragPos = 0.0;
+    _activeThumb = null;
   }
 
   @override
@@ -191,22 +240,27 @@ class _RenderDistributionSlider<T> extends RenderBox {
       
       _canvas.drawRect(rect, paint);
 
+      final visualData = _DistributionVisualData()
+        ..fromX = widthOccupied;
+        
       widthOccupied += width;
 
-      final thumbY = index.isEven ? offset.dy - _thumbRadius : (_thumbRadius) + trackHeight + offset.dy;
-      _drawThumb(Offset(widthOccupied, thumbY), color);
+      visualData.toX = widthOccupied;
+      _visualData[entry.key] = visualData;
 
+      final thumbY = index.isEven ? offset.dy - _thumbRadius : (_thumbRadius) + trackHeight + offset.dy;
+      _drawThumb(Offset(widthOccupied, thumbY), color, entry.key);
+      
       index++;
     }
   }
 
-  void _drawThumb(Offset offset, Color color) {
+  void _drawThumb(Offset offset, Color color, T key) {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-
-    _canvas.drawCircle(offset, _thumbRadius, paint);
     
-    _thumbRectangles.add(Rect.fromCircle(center: offset, radius: _thumbRadius * 2));
+    _canvas.drawCircle(offset, _thumbRadius, paint);
+    _visualData[key].thumbRectangle = Rect.fromCircle(center: offset, radius: _thumbRadius * 2);
   }
 }
