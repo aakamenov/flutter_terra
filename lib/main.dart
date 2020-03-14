@@ -5,7 +5,9 @@ import 'package:flutter_terra/ui/pages/simulation_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/constants.dart';
 
-void main() => runApp(MyApp());
+void main() { 
+  runApp(MyApp()); 
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -13,8 +15,21 @@ class MyApp extends StatelessWidget {
     final terrarium = Terrarium();
 
     terrarium.registerCreature(Creature(
+      type: 'plant',
+      color: Color.fromRGBO(0, 120, 0, 1.0),
+      size: 10,
+      maxEnergy: 20,
+      initialEnergy: 5,
+      gainEnergyOnWait: true,
+      waitEnergyModifier: 1,
+      moveLevel: 0,
+      reproduceLevel: 0.65,
+    ));
+
+    terrarium.registerCreature(Creature(
         type: 'brute',
         color: Color.fromRGBO(0, 255, 255, 1.0),
+        maxEnergy: 50,
         initialEnergy: 10,
         size: 20
       )
@@ -28,8 +43,9 @@ class MyApp extends StatelessWidget {
       )
     );
 
-    terrarium.settings.distribution['brute'] = 20;
-    terrarium.settings.distribution['bully'] = 20;
+    terrarium.settings.distribution['brute'] = 5;
+    terrarium.settings.distribution['bully'] = 5;
+    terrarium.settings.distribution['plant'] = 50;
 
     terrarium.buildGrid();
 

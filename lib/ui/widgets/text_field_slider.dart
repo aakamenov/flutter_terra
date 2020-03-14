@@ -9,7 +9,8 @@ class TextFieldSlider extends StatefulWidget {
   final int sliderFlex;
   final int textFieldFlex;
 
-  TextFieldSlider({this.initialValue = 0.0,
+  TextFieldSlider({ Key key,
+    this.initialValue = 0.0,
     this.min = 0.0,
     this.max = 1.0,
     this.sliderFlex = 4,
@@ -17,7 +18,8 @@ class TextFieldSlider extends StatefulWidget {
     @required this.onChanged})
     : assert(initialValue >= min),
       assert(sliderFlex >= 1),
-      assert(textFieldFlex >= 1);
+      assert(textFieldFlex >= 1),
+      super(key: key);
 
   @override
   _TextFieldSliderState createState() => _TextFieldSliderState();

@@ -33,7 +33,7 @@ class SimulationPage extends StatelessWidget {
               color: terrarium.isRunning ? Colors.red : Colors.green,
               child: _buildPlayButtonContent(terrarium.isRunning),
               onPressed: () {
-                terrarium.isRunning ? terrarium.stop() : terrarium.start(500);
+                terrarium.isRunning ? terrarium.stop() : terrarium.start(100);
               },
             ),
             RaisedButton(

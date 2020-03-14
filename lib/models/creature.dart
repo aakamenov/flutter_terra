@@ -22,16 +22,16 @@ class Creature {
   ///Energy level that a creature has at the start of its life. 
   int get initialEnergy => _initialEnergy;
   set initialEnergy(int value) {
-    if(value <= maxEnergy)
-      _initialEnergy = value;
+    assert(value >= 1 && value <= maxEnergy);
+    _initialEnergy = value;
   }
   int _initialEnergy;
   ///Conversion ratio of food to energy. 
   ///Food energy × efficiency = gained energy.
   double get efficiency => _efficiency;
   set efficiency(double value) {
-    if(value >= 0.0 && value <= 1.0)
-      _efficiency = value;
+    assert(value >= 0.0 && value <= 1.0);
+    _efficiency = value;
   }
   double _efficiency;
   ///A creature's size. By default, creatures can only eat creatures smaller than them.
@@ -44,26 +44,42 @@ class Creature {
   ///Used as percentages of [maxEnergy]
   double get reproduceLevel => _reproduceLevel;
   set reproduceLevel(double value) {
-    if(value >= 0.0 && value <= 1.0)
-      _reproduceLevel = value;
+    assert(value >= 0.0 && value <= 1.0);
+    _reproduceLevel = value;
   }
   double _reproduceLevel;
   ///Percentage of a creature's max energy below which it will stop moving.
   double get moveLevel => _moveLevel;
   set moveLevel(double value) {
-    if(value >= 0.0 && value <= 1.0)
-      _moveLevel = value;
+    assert(value >= 0.0 && value <= 1.0);
+    _moveLevel = value;
   }
   double _moveLevel;
 
   Color color;
 
-  static final int maxEnergy = 100;
+  int get maxEnergy => _maxEnergy;
+  set maxEnergy(int value) {
+    assert(value > 0);
+    _maxEnergy = value;
+    initialEnergy = _initialEnergy.clamp(1, _maxEnergy);
+    waitEnergyModifier = _waitEnergyModifier.clamp(0, _maxEnergy);
+  }
+  int _maxEnergy = 100;
 
   int get energy => _energy;
   int _energy;
 
   bool get isDead => _energy <= 0;
+
+  bool gainEnergyOnWait;
+
+  int get waitEnergyModifier => _waitEnergyModifier;
+  set waitEnergyModifier(int value) {
+    assert(value >= 0 && value <= maxEnergy);
+    _waitEnergyModifier = value;
+  }
+  int _waitEnergyModifier;
 
   Creature({
     @required this.type,
@@ -74,30 +90,39 @@ class Creature {
     this.actionRadius = 1,
     this.sustainability = 2,
     double reproduceLevel = 0.70,
-    double moveLevel = 0.0
+    double moveLevel = 0.0,
+    int maxEnergy = 100,
+    this.gainEnergyOnWait = false,
+    int waitEnergyModifier = 5
   }) : assert(type != null && type != ''),
        assert(initialEnergy <= maxEnergy),
        assert(moveLevel >= 0.0 && moveLevel <= 1.0),
        assert(efficiency >= 0.0 && efficiency <= 1.0),
        assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0) {
-    _initialEnergy = initialEnergy;
+    this.initialEnergy = initialEnergy;
+    this.waitEnergyModifier = waitEnergyModifier;
+    this.maxEnergy = maxEnergy;
     _energy = initialEnergy;
-    _reproduceLevel = reproduceLevel;
-    _moveLevel = moveLevel;
-    _efficiency = efficiency;
-    color = color ?? _generateRandomColor();
+
+    this.reproduceLevel = reproduceLevel;
+    this.moveLevel = moveLevel;
+    this.efficiency = efficiency;
+    this.color = color ?? _generateRandomColor();
   }
 
   Creature.clone(Creature c, { String newType }) : this(
     type: newType == null || newType.isEmpty ? c.type : newType,
     color: c.color,
+    maxEnergy: c.maxEnergy,
     initialEnergy: c.initialEnergy, 
     efficiency: c.efficiency, 
     size: c.size, 
     actionRadius: c.actionRadius, 
     sustainability: c.sustainability, 
     reproduceLevel: c.reproduceLevel, 
-    moveLevel: c.moveLevel);
+    moveLevel: c.moveLevel,
+    gainEnergyOnWait: c.gainEnergyOnWait,
+    waitEnergyModifier: c.waitEnergyModifier);
 
   ProcessResult process(List<Cell> neighbors) {
     if(_energy > maxEnergy * reproduceLevel)
@@ -109,7 +134,10 @@ class Creature {
   }
 
   wait() {
-    _energy -= 5;
+    if(gainEnergyOnWait)
+      _energy += 5;
+    else
+      _energy -= 5;
   }
 
   ProcessResult _reproduce(List<Cell> neighbors) {
