@@ -32,12 +32,12 @@ class Terrarium extends ChangeNotifier {
   final SimulationSettings settings = SimulationSettings();
   Timer _timer;
 
-  start(int ms) {
+  void start(int ms) {
     _isRunning = true;
     _timer = Timer.periodic(Duration(milliseconds: ms), (timer) => step());
   }
 
-  stop() {
+  void stop() {
     _isRunning = false;
 
     if(_timer != null)
@@ -69,7 +69,9 @@ class Terrarium extends ChangeNotifier {
 
     _registeredCreatures[creature.type] = Creature.clone(creature);
 
-    if(settings.distribution.length > 0) {
+    final totalOccupied = settings.distribution.values.fold<double>(0.0, (current, next) => current += next);
+
+    if(totalOccupied > 99.0) {
       final key = settings.distribution.keys.first;
       settings.distribution[key]--;
     }
@@ -87,21 +89,16 @@ class Terrarium extends ChangeNotifier {
     return Creature.clone(_registeredCreatures[type]);
   }
 
-  unregisterCreature(Creature creature) {
+  void unregisterCreature(Creature creature) {
     _registeredCreatures.removeWhere((k, v) {
       return k == creature.type;
     });
 
-    if(settings.distribution.length > 1) {
-      final value = settings.distribution.remove(creature.type);
-      final key = settings.distribution.keys.first;
-
-      settings.distribution[key] += value;
-      settings.notifyListeners();
-    }
+    settings.distribution.remove(creature.type);
+    settings.notifyListeners();
   }
 
-  buildGrid() {
+  void buildGrid() {
     final distribution = settings.distribution;
 
     assert(listEquals(distribution.keys.toList(), _registeredCreatures.keys.toList()));
@@ -149,7 +146,7 @@ class Terrarium extends ChangeNotifier {
     notifyListeners();
   }
 
-  step() {
+  void step() {
     var hasChanged = false;
 
     for(int x = 0; x < gridWidth; x++) {

@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -139,7 +138,6 @@ class _RenderDistributionSlider<T> extends RenderBox {
     }
     
     _dragGestureRecognizer.addPointer(event);
-    _currentDragPos = _visualData[_activeThumb].center.dx;
   }
 
   void _onDragStart(DragStartDetails details) {
@@ -171,6 +169,8 @@ class _RenderDistributionSlider<T> extends RenderBox {
   }
 
   void _handleDragEnd() {
+    onChanged(_activeThumb, values[_activeThumb]._value);
+    
     _currentDragPos = 0.0;
     _activeThumb = null;
   }

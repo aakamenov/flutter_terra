@@ -118,7 +118,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                         return DistributionSlider<String>(
                           values: data,
                           onChanged: (key, value) {
-                            
+                            terrarium.settings.distribution[key] = (value * 100).toInt();
                           },
                         );
                       },
