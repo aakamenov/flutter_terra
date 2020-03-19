@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_terra/styles.dart';
 import 'package:flutter_terra/ui/widgets/creature_config.dart';
-import 'package:flutter_terra/ui/widgets/distribution_slider.dart';
+import 'package:flutter_terra/constants.dart';
 import 'package:flutter_terra/ui/widgets/rename_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
@@ -29,8 +30,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   Widget build(BuildContext context) {
     final terrarium = Provider.of<Terrarium>(context);
     final creatures = terrarium.registeredCreatures;
-
-    final theme = Theme.of(context);
 
     return WillPopScope(
       onWillPop: () {
@@ -73,70 +72,43 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               )
           ],
         ),
-        body: PageView(
-          controller: controller,
-          children: <Widget>[
-            for(var creature in creatures) 
-              CreatureConfig(creature)
-          ]
-        ),
-        drawer: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              margin: EdgeInsets.zero,
-              child: const Text(
-                "Simulation settings",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: theme.buttonColor
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: theme.primaryColor
-              ),
-              height: 1000,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    Consumer<SimulationSettings>(
-                      builder: (context, settings, widget) {
-                        final data = Map<String, DistributionSliderValueData>();
-
-                        for(var entry in settings.distribution.entries) {
-                          data[entry.key] = DistributionSliderValueData(
-                            color: terrarium.getCreature(entry.key).color,
-                            value: entry.value * 0.01
-                          );
-                        }
-
-                        return DistributionSlider<String>(
-                          values: data,
-                          onChanged: (key, value) {
-                            terrarium.settings.distribution[key] = (value * 100).toInt();
-                          },
-                        );
-                      },
-                    )
-                    
-                  ],
-                ),
-              ),
-            )
-          ],
+        body: Padding(
+          padding: pagePadding,
+          child: PageView(
+            controller: controller,
+            children: <Widget>[
+              for(var creature in creatures) 
+                CreatureConfig(creature)
+            ]
+          ),
         ),
         bottomNavigationBar: Container(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[       
+            children: <Widget>[      
+              RaisedButton(
+                color: defaultButtonColor,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    const Text('Simulation settings'),
+                    const Icon(Icons.settings)
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(Routes.simulationSettingsPage);
+                }
+              ), 
               if(creatures.length < 11)
                 RaisedButton(
-                  child: Text("Add creature"),
+                  color: primaryButtonColor,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      const Text('Add creature'),
+                      const Icon(Icons.add)
+                    ],
+                  ),
                   onPressed: () async {
                     final result = await RenameDialog.show(context, title: "New creature");
 

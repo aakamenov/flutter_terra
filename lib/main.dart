@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/ui/pages/configuration_page.dart';
 import 'package:flutter_terra/ui/pages/simulation_page.dart';
+import 'package:flutter_terra/ui/pages/simulation_settings_page.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/constants.dart';
 
@@ -12,6 +13,29 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final terrarium = _setupInitialConfig();
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: terrarium),
+        ChangeNotifierProvider.value(value:terrarium.settings)
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          brightness: Brightness.dark,
+          primarySwatch: Colors.deepOrange
+        ),
+        routes: {
+          Routes.simulationPage: (context) => SimulationPage(),
+          Routes.configurationPage: (context) => ConfigurationPage(),
+          Routes.simulationSettingsPage: (context) => SimulationSettingsPage()
+        },
+      ),
+    );
+  }
+
+  Terrarium _setupInitialConfig() {
     final terrarium = Terrarium();
 
     terrarium.registerCreature(Creature(
@@ -49,23 +73,7 @@ class MyApp extends StatelessWidget {
 
     terrarium.buildGrid();
 
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: terrarium),
-        ChangeNotifierProvider.value(value:terrarium.settings)
-      ],
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          brightness: Brightness.dark,
-          primarySwatch: Colors.deepOrange
-        ),
-        routes: {
-          Routes.simulationPage: (context) => SimulationPage(),
-          Routes.configurationPage: (context) => ConfigurationPage()
-        },
-      ),
-    );
+    return terrarium;
   }
 }
 

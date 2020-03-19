@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_terra/styles.dart';
 import 'package:flutter_terra/ui/painters/grid_painter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
@@ -37,7 +38,7 @@ class SimulationPage extends StatelessWidget {
               },
             ),
             RaisedButton(
-              color: Colors.blueGrey,
+              color: defaultButtonColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
