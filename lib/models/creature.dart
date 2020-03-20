@@ -34,7 +34,7 @@ class Creature {
     _efficiency = value;
   }
   double _efficiency;
-  ///A creature's size. By default, creatures can only eat creatures smaller than them.
+  ///A creature's size. Creatures can only eat creatures smaller than them.
   int size;
   ///A creature's vision and movement range for each step.
   int actionRadius;

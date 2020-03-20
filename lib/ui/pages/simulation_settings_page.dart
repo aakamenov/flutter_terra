@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/styles.dart';
+import 'package:flutter_terra/ui/widgets/help_text.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/ui/widgets/distribution_slider.dart';
@@ -23,9 +24,10 @@ class _SimulationSettingsPageState extends State<SimulationSettingsPage> {
         child: Column(
           children: <Widget>[
             Center(
-              child: const Text(
-                "Distribution",
-                style: bigText,
+              child: const HelpText(
+                text: "Distribution",
+                helpText: "Controls the percentage of the grid that each creature type occupies. The striped red lines indicate emptiness.",
+                textStyle: bigText,
               )
             ),
             SingleChildScrollView(

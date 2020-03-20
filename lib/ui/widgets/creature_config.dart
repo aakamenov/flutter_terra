@@ -5,6 +5,7 @@ import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/styles.dart';
 import 'package:flutter_terra/ui/widgets/numeric_text_field.dart';
 import 'package:flutter_terra/ui/widgets/text_field_slider.dart';
+import 'package:flutter_terra/ui/widgets/help_text.dart';
 
 class CreatureConfig extends StatefulWidget {
   final Creature _creature;
@@ -16,6 +17,8 @@ class CreatureConfig extends StatefulWidget {
 }
 
 class _CreatureConfigState extends State<CreatureConfig> {
+  static const helpIconSize = 20.0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -43,7 +46,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Size'),
+          description: const HelpText(
+            text: "Size",
+            helpText: "The creature's size. Creatures can only eat other creatures that are smaller than them.",
+            iconSize: helpIconSize,
+          ),
           child: NumericTextField<int>(
             initialValue: widget._creature.size,
             min: 1,
@@ -54,7 +61,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Maximum energy'),
+          description: const HelpText(
+            text: "Maximum energy",
+            helpText: "The maximum amount of energy that the creature can accumulate.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.maxEnergy.toDouble(),
             min: 1,
@@ -68,7 +79,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Initial energy'),
+          description: const HelpText(
+            text: "Initial energy",
+            helpText: "The amount of energy that the creature has at the start of its life.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             key: UniqueKey(),
             initialValue: widget._creature.initialEnergy.toDouble(),
@@ -82,7 +97,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
         buildSettingRow(
           descriptionFlex: 3,
           childFlex: 1,
-          description: const Text("Gains energy when idle"),
+          description: const HelpText(
+            text: "Gains energy when idle",
+            helpText: "If the creature doesn't reproduce or move during its turn it sits idle and loses energy. Turn this option on to make it gain energy instead. Useful when simulating plants.",
+            iconSize: helpIconSize,
+          ),
           child: Switch(
             activeColor: theme.buttonColor,
             value: widget._creature.gainEnergyOnWait,
@@ -106,7 +125,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Efficiency (%)'),
+          description: const HelpText(
+            text: "Efficiency (%)",
+            helpText: "The conversion ratio of food to energy.\n\neaten creature's energy × efficiency = gained energy\n\n100% efficiency means that the creature absorbs all the energy of its food.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.efficiency * 100,
             min: 1,
@@ -117,7 +140,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Action radius'),
+          description: const HelpText(
+            text: "Action radius",
+            helpText: "The creature's vision and movement range. An action radius of 1 means that the creature can only interact with its adjacent cells.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.actionRadius.toDouble(),
             min: 1,
@@ -128,7 +155,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Sustainability'),
+          description: const HelpText(
+            text: "Sustainability",
+            helpText: "The number of visible food sources needed before the creature will eat.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.sustainability.toDouble(),
             min: 1,
@@ -139,7 +170,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Reproducibility (%)'),
+          description: const HelpText(
+            text: "Reproducibility (%)",
+            helpText: "The percentage of the creature's maximum energy above which it will reproduce.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.reproduceLevel * 100,
             min: 0,
@@ -150,7 +185,11 @@ class _CreatureConfigState extends State<CreatureConfig> {
           )
         ),
         buildSettingRow(
-          description: const Text('Move level (%)'),
+          description: const HelpText(
+            text: "Move level (%)",
+            helpText: "The percentage of the creature's maximum energy below which it will stop moving. A move level of 0% indicates that the creature cannot move.",
+            iconSize: helpIconSize,
+          ),
           child: TextFieldSlider(
             initialValue: widget._creature.moveLevel * 100,
             min: 0,
@@ -165,7 +204,7 @@ class _CreatureConfigState extends State<CreatureConfig> {
   }
 
   Widget buildSettingRow({ 
-      Text description,
+      Widget description,
       Widget child,
       int descriptionFlex = 1,
       int childFlex = 3
