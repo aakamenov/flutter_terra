@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
       initialEnergy: 5,
       gainEnergyOnWait: true,
       waitEnergyModifier: 1,
-      moveLevel: 0,
+      moveLevel: 1.0,
       reproduceLevel: 0.65,
     ));
 

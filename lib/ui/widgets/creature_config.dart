@@ -187,7 +187,7 @@ class _CreatureConfigState extends State<CreatureConfig> {
         buildSettingRow(
           description: const HelpText(
             text: "Move level (%)",
-            helpText: "The percentage of the creature's maximum energy below which it will stop moving. A move level of 0% indicates that the creature cannot move.",
+            helpText: "The percentage of the creature's maximum energy below which it will stop moving. A move level of 100% indicates that the creature cannot move.",
             iconSize: helpIconSize,
           ),
           child: TextFieldSlider(
