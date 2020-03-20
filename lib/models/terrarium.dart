@@ -32,9 +32,9 @@ class Terrarium extends ChangeNotifier {
   final SimulationSettings settings = SimulationSettings();
   Timer _timer;
 
-  void start(int ms) {
+  void start() {
     _isRunning = true;
-    _timer = Timer.periodic(Duration(milliseconds: ms), (timer) => step());
+    _timer = Timer.periodic(Duration(milliseconds: settings.simulationSpeed), (timer) => step());
   }
 
   void stop() {

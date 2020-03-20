@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_terra/styles.dart';
 import 'package:flutter_terra/ui/widgets/help_text.dart';
+import 'package:flutter_terra/ui/widgets/text_field_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_terra/models/terrarium.dart';
 import 'package:flutter_terra/ui/widgets/distribution_slider.dart';
 
-class SimulationSettingsPage extends StatefulWidget {
-  @override
-  _SimulationSettingsPageState createState() => _SimulationSettingsPageState();
-}
-
-class _SimulationSettingsPageState extends State<SimulationSettingsPage> {
-  @override
+class SimulationSettingsPage extends StatelessWidget {
+@override
   Widget build(BuildContext context) {
     final terrarium = Provider.of<Terrarium>(context, listen: false);
 
@@ -21,42 +17,53 @@ class _SimulationSettingsPageState extends State<SimulationSettingsPage> {
       ),
       body: Padding(
         padding: pagePadding,
-        child: Column(
-          children: <Widget>[
-            Center(
-              child: const HelpText(
-                text: "Distribution",
-                helpText: "Controls the percentage of the grid that each creature type occupies. The striped red lines indicate emptiness.",
-                textStyle: bigText,
-              )
-            ),
-            SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Consumer<SimulationSettings>(
-                    builder: (context, settings, widget) {
-                      final data = Map<String, DistributionSliderValueData>();
-
-                      for (var entry in settings.distribution.entries) {
-                        data[entry.key] = DistributionSliderValueData(
-                          color: terrarium.getCreature(entry.key).color,
-                          value: entry.value * 0.01);
-                      }
-
-                      return DistributionSlider<String>(
-                        values: data,
-                        onChanged: (key, value) {
-                          settings.distribution[key] = (value * 100).toInt();
-                        },
-                      );
-                    },
-                  )
-                ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Center(
+                child: const HelpText(
+                  text: "Distribution",
+                  helpText: "Controls the percentage of the grid that each creature type occupies. The striped red lines indicate emptiness.",
+                  textStyle: bigText,
+                )
               ),
-            ),
-          ]
-        ),
-      )
+              _buildDistributionSlider(terrarium),
+              Center(
+                child: const HelpText(
+                  text: "Speed (ms)",
+                  helpText: "Controls the speed of the simulation in automatic mode (when pressing the 'Start' button).",
+                  textStyle: bigText,
+                )
+              ),
+              TextFieldSlider(
+                initialValue: terrarium.settings.simulationSpeed.toDouble(),
+                min: SimulationSettings.minSpeed.toDouble(),
+                max: SimulationSettings.maxSpeed.toDouble(),
+                onChanged: (value) {
+                  terrarium.settings.simulationSpeed = value.toInt();
+                },
+              )
+            ],
+          ),
+        ),       
+      ),   
+    );
+  }
+
+  Widget _buildDistributionSlider(Terrarium terrarium) {
+    final data = Map<String, DistributionSliderValueData>();
+
+    for (var entry in terrarium.settings.distribution.entries) {
+      data[entry.key] = DistributionSliderValueData(
+        color: terrarium.getCreature(entry.key).color,
+        value: entry.value * 0.01);
+    }
+
+    return DistributionSlider<String>(
+      values: data,
+      onChanged: (key, value) {
+        terrarium.settings.distribution[key] = (value * 100).toInt();
+      },
     );
   }
 }
