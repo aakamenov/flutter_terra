@@ -148,14 +148,20 @@ class _RenderDistributionSlider<T> extends RenderBox {
     assert(_activeThumb != null);
     assert(values.containsKey(_activeThumb));
 
+    final oldPos = _currentDragPos;
     _currentDragPos += details.primaryDelta;
 
-    final currentThumb = values[_activeThumb];
-    final totalOccupied = values.entries.fold<double>(0.0, (current, next) => current += next.value.value);
+    final isForward = details.primaryDelta > 0;
 
+    final currentThumb = values[_activeThumb];
+
+    final totalOccupied = values.entries.fold<double>(0.0, (current, next) => current += next.value.value);
     final maxValue = 1.0 - (totalOccupied - currentThumb.value);
-    
-    currentThumb.value = (_currentDragPos / size.width).clamp(0.01, maxValue);
+
+    final difference = ((oldPos - _currentDragPos).abs() / size.width);
+    final newValue = isForward ? currentThumb.value + difference : currentThumb.value - difference;
+
+    currentThumb.value = newValue.clamp(0.01, maxValue + 0.01);
 
     markNeedsPaint();
   }
