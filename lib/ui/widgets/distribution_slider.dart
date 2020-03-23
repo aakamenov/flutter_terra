@@ -45,7 +45,7 @@ class DistributionSlider<TKey> extends StatefulWidget {
 
 class _DistributionSliderState<T> extends State<DistributionSlider<T>> {
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(10),
       height: widget.height,
@@ -187,10 +187,11 @@ class _RenderDistributionSlider<T> extends RenderBox {
     final trackHeight = size.height - (4 * _thumbRadius);
 
     _canvas = context.canvas;
-
+    
     _drawBackground(trackHeight, trackOffset);
     _drawStripes(trackHeight, trackOffset);
     _drawTrack(trackHeight, trackOffset);
+    _drawLabel(trackOffset);
   }
 
   void _drawBackground(double trackHeight, Offset offset) {
@@ -256,5 +257,50 @@ class _RenderDistributionSlider<T> extends RenderBox {
     
     _canvas.drawCircle(offset, _thumbRadius, paint);
     _visualData[key] = Rect.fromCircle(center: offset, radius: _thumbRadius * 2);
+  }
+
+  void _drawLabel(Offset trackOffset) {
+    if(_activeThumb == null)
+      return;
+     
+    final labelBoxRadius = 16.0;
+    final distanceFromThumb = labelBoxRadius * 2;
+
+    final index = values.keys.toList().indexOf(_activeThumb);
+    final activeThumb = values[_activeThumb];
+
+    final color = activeThumb.color;
+    final textColor = color.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
+    
+    final valuePercentage = (activeThumb.value * 100).toInt();
+    final painter = TextPainter(
+      text: TextSpan(
+        style: TextStyle(color: textColor),
+        text: "$valuePercentage%"
+      ),
+      textDirection: TextDirection.ltr
+    )
+      ..layout();
+
+    final thumbCenter = _visualData[_activeThumb].center;
+    final offset = index.isEven ? Offset(thumbCenter.dx, thumbCenter.dy - _thumbRadius) : Offset(thumbCenter.dx, trackOffset.dy);
+
+    final labelBox = Rect.fromCircle(center: Offset(offset.dx, offset.dy - distanceFromThumb), radius: labelBoxRadius);
+
+    final path = Path();
+    path.moveTo(offset.dx, offset.dy);
+    path.lineTo(labelBox.centerLeft.dx, labelBox.centerLeft.dy);
+    path.lineTo(labelBox.centerRight.dx, labelBox.centerRight.dy);
+
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    _canvas.drawOval(labelBox, paint);
+    //_canvas.drawCircle(Offset(offset.dx, offset.dy - distanceFromThumb), labelBoxRadius, paint);
+    _canvas.drawPath(path, paint);
+    
+    final textMargin = valuePercentage > 9 ? 3 : 7;
+    painter.paint(_canvas, Offset(labelBox.centerLeft.dx + textMargin, labelBox.centerLeft.dy - labelBoxRadius / 2));
   }
 }

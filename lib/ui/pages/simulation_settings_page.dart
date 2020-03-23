@@ -22,14 +22,6 @@ class SimulationSettingsPage extends StatelessWidget {
             children: <Widget>[
               Center(
                 child: const HelpText(
-                  text: "Distribution",
-                  helpText: "Controls the percentage of the grid that each creature type occupies. The striped red lines indicate emptiness.",
-                  textStyle: bigText,
-                )
-              ),
-              _buildDistributionSlider(terrarium),
-              Center(
-                child: const HelpText(
                   text: "Speed (ms)",
                   helpText: "Controls the speed of the simulation in automatic mode (when pressing the 'Start' button).",
                   textStyle: bigText,
@@ -42,7 +34,15 @@ class SimulationSettingsPage extends StatelessWidget {
                 onChanged: (value) {
                   terrarium.settings.simulationSpeed = value.toInt();
                 },
-              )
+              ),
+              Center(
+                child: const HelpText(
+                  text: "Distribution",
+                  helpText: "Controls the percentage of the grid that each creature type occupies. The striped red lines indicate emptiness.",
+                  textStyle: bigText,
+                )
+              ),
+              _buildDistributionSlider(terrarium),
             ],
           ),
         ),       
