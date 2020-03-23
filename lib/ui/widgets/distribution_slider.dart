@@ -12,7 +12,10 @@ class DistributionSliderValueData {
 
   set value(double value) {
     assert(value >= 0.0 && value <= 1.0);
-    _value = value;
+
+    //Hack to round to 2 decimal places, because Dart doesn't have its own function
+    double mod = pow(10.0, 2); 
+    _value = ((value * mod).round().toDouble() / mod);
   }
 
   double _value;
@@ -161,7 +164,7 @@ class _RenderDistributionSlider<T> extends RenderBox {
     final difference = ((oldPos - _currentDragPos).abs() / size.width);
     final newValue = isForward ? currentThumb.value + difference : currentThumb.value - difference;
 
-    currentThumb.value = newValue.clamp(0.01, maxValue + 0.01);
+    currentThumb.value = newValue.clamp(0.01, maxValue);
 
     markNeedsPaint();
   }
