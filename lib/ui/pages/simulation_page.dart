@@ -31,7 +31,7 @@ class SimulationPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             RaisedButton(
-              color: terrarium.isRunning ? Colors.red : Colors.green,
+              color: terrarium.isRunning ? Colors.orange : Colors.green,
               child: _buildPlayButtonContent(terrarium.isRunning),
               onPressed: () {
                 terrarium.isRunning ? terrarium.stop() : terrarium.start();
@@ -74,8 +74,8 @@ class SimulationPage extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          const Text('Stop'),
-          const Icon(Icons.stop)
+          const Text('Pause'),
+          const Icon(Icons.pause)
         ],
       );
     }
