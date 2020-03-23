@@ -228,7 +228,6 @@ class _RenderDistributionSlider<T> extends RenderBox {
 
   void _drawTrack(double trackHeight, Offset offset) {
     var widthOccupied = offset.dx;
-    var index = 0;
 
     for(var entry in values.entries) {
       final width = entry.value.value * size.width;
@@ -243,10 +242,8 @@ class _RenderDistributionSlider<T> extends RenderBox {
         
       widthOccupied += width;
 
-      final thumbY = index.isEven ? offset.dy - _thumbRadius : (_thumbRadius) + trackHeight + offset.dy;
+      final thumbY = (_thumbRadius) + trackHeight + offset.dy;
       _drawThumb(Offset(widthOccupied, thumbY), color, entry.key);
-      
-      index++;
     }
   }
 
@@ -266,7 +263,6 @@ class _RenderDistributionSlider<T> extends RenderBox {
     final labelBoxRadius = 16.0;
     final distanceFromThumb = labelBoxRadius * 2;
 
-    final index = values.keys.toList().indexOf(_activeThumb);
     final activeThumb = values[_activeThumb];
 
     final color = activeThumb.color;
@@ -283,7 +279,7 @@ class _RenderDistributionSlider<T> extends RenderBox {
       ..layout();
 
     final thumbCenter = _visualData[_activeThumb].center;
-    final offset = index.isEven ? Offset(thumbCenter.dx, thumbCenter.dy - _thumbRadius) : Offset(thumbCenter.dx, trackOffset.dy);
+    final offset = Offset(thumbCenter.dx, trackOffset.dy);
 
     final labelBox = Rect.fromCircle(center: Offset(offset.dx, offset.dy - distanceFromThumb), radius: labelBoxRadius);
 
@@ -297,7 +293,6 @@ class _RenderDistributionSlider<T> extends RenderBox {
       ..style = PaintingStyle.fill;
 
     _canvas.drawOval(labelBox, paint);
-    //_canvas.drawCircle(Offset(offset.dx, offset.dy - distanceFromThumb), labelBoxRadius, paint);
     _canvas.drawPath(path, paint);
     
     final textMargin = valuePercentage > 9 ? 3 : 7;
