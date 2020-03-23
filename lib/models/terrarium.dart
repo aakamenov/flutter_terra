@@ -72,8 +72,8 @@ class Terrarium extends ChangeNotifier {
     final totalOccupied = settings.distribution.values.fold<double>(0.0, (current, next) => current += next);
 
     if(totalOccupied > 99.0) {
-      final key = settings.distribution.keys.first;
-      settings.distribution[key]--;
+      final entry = settings.distribution.entries.firstWhere((x) => x.value > 1);
+      settings.distribution[entry.key]--;
     }
 
     settings.distribution[creature.type] = 1;
