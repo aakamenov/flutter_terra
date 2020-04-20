@@ -124,11 +124,11 @@ class Creature {
     gainEnergyOnWait: c.gainEnergyOnWait,
     waitEnergyModifier: c.waitEnergyModifier);
 
-  ProcessResult process(List<Cell> neighbors) {
+  ProcessResult process(Iterable<Cell> neighbors) {
     if(_energy > maxEnergy * reproduceLevel)
-      return _reproduce(neighbors);
+      return _reproduce(neighbors.toSet());
     else if(energy > maxEnergy * moveLevel) 
-      return _move(neighbors);
+      return _move(neighbors.toSet());
 
     return ProcessResult.none();
   }
@@ -140,15 +140,15 @@ class Creature {
       _energy -= 5;
   }
 
-  ProcessResult _reproduce(List<Cell> neighbors) {
-    final availableSpots = neighbors.where((c) { return c.isFree; });
+  ProcessResult _reproduce(Set<Cell> neighbors) {
+    neighbors.retainWhere((c) { return c.isFree; });
 
-    if(availableSpots.length > 0) {
-      if(availableSpots.length == 1) {
-        return ProcessResult(ProcessAction.reproduce, availableSpots.first.position);
+    if(neighbors.length > 0) {
+      if(neighbors.length == 1) {
+        return ProcessResult(ProcessAction.reproduce, neighbors.first.position);
       } else {
         final random = Random();
-        final position = availableSpots.elementAt(random.nextInt(availableSpots.length)).position;
+        final position = neighbors.elementAt(random.nextInt(neighbors.length)).position;
 
         return ProcessResult(ProcessAction.reproduce, position);
       }
@@ -157,10 +157,10 @@ class Creature {
     return ProcessResult.none();
   }
 
-  ProcessResult _move(List<Cell> neighbors) {
+  ProcessResult _move(Set<Cell> neighbors) {
     var action = ProcessAction.eat;
-
-    var availableSpots = neighbors.where((c) {
+    
+    neighbors.retainWhere((c) {
       if(c.creature != null)
         return c.creature.size < size;
 
@@ -168,17 +168,17 @@ class Creature {
     });
 
     //If there's not enough food, try to move
-    if(availableSpots.length < sustainability) {
+    if(neighbors.length < sustainability) {
       action = ProcessAction.move;
-      availableSpots = neighbors.where((c) { return c.isFree; });
+      neighbors.retainWhere((c) { return c.isFree; });
     }
 
-    if(availableSpots.length > 0) {
-      if(availableSpots.length == 1) {
-        return ProcessResult(action, availableSpots.first.position);
+    if(neighbors.length > 0) {
+      if(neighbors.length == 1) {
+        return ProcessResult(action, neighbors.first.position);
       } else {
         final random = Random();
-        final position = availableSpots.elementAt(random.nextInt(availableSpots.length)).position;
+        final position = neighbors.elementAt(random.nextInt(neighbors.length)).position;
 
         return ProcessResult(action, position);
       }

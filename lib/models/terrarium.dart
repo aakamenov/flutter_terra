@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 part 'creature.dart';
 part 'simulation_settings.dart';
@@ -47,13 +48,8 @@ class Terrarium extends ChangeNotifier {
   }
 
   Cell cellAt(int x, int y) {
-    if(x >= _grid.length) {
-      return null;
-    }
-
-    if(y >= _grid[x].length) {
-      return null;
-    }
+    assert(x >= 0 && x < gridWidth);
+    assert(y >= 0 && y < gridHeight);
 
     return _grid[x][y];
   }
@@ -160,7 +156,7 @@ class Terrarium extends ChangeNotifier {
         }
 
         hasChanged = true;
-
+        
         final result = cell.creature.process(_getNeighbors(cell));
         final point = result.point;
 
@@ -199,9 +195,7 @@ class Terrarium extends ChangeNotifier {
       notifyListeners();
   }
 
-  List<Cell> _getNeighbors(Cell cell) {
-    var neighbors = <Cell>[];
-
+  Iterable<Cell> _getNeighbors(Cell cell) sync* {
     final radius = cell.creature.actionRadius;
     final pos = cell.position;
 
@@ -213,11 +207,9 @@ class Terrarium extends ChangeNotifier {
     for (var x = xLo; x <= xHi; ++x) {
       for (var y = yLo; y <= yHi; ++y) {
         if (x != pos.x || y != pos.y) {
-          neighbors.add(_grid[x][y]);
+          yield _grid[x][y];
         }
       }
     }
-
-    return neighbors;
   }
 }
