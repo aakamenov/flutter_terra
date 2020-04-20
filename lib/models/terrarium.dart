@@ -143,6 +143,15 @@ class Terrarium extends ChangeNotifier {
   }
 
   void step() {
+    final largestRadius = _getLargestRadius();
+    var bufferLength = 0;
+
+    for(int i = 1; i <= largestRadius; i++) {
+      bufferLength += i * 8;
+    }
+
+    final buffer = List<Cell>(bufferLength);
+
     var hasChanged = false;
 
     for(int x = 0; x < gridWidth; x++) {
@@ -157,7 +166,8 @@ class Terrarium extends ChangeNotifier {
 
         hasChanged = true;
         
-        final result = cell.creature.process(_getNeighbors(cell));
+        final manager = _NeighborsManager(_grid, buffer, cell.position, cell.creature.actionRadius);
+        final result = cell.creature.process(manager);
         final point = result.point;
 
         switch(result.action) {
@@ -195,21 +205,89 @@ class Terrarium extends ChangeNotifier {
       notifyListeners();
   }
 
-  Iterable<Cell> _getNeighbors(Cell cell) sync* {
-    final radius = cell.creature.actionRadius;
-    final pos = cell.position;
+  int _getLargestRadius() {
+    var largest = 1;
 
-    final xLo = max(0, pos.x - radius);
-    final yLo = max(0, pos.y - radius);
-    final xHi = min(pos.x + radius, gridWidth - 1);
-    final yHi = min(pos.y + radius, gridHeight - 1);
+    for(var creature in _registeredCreatures.values) {
+      final radius = creature.actionRadius;
+      
+      if(radius > largest)
+        largest = radius;
+    }
+    
+    return largest;
+  }
+}
+
+class _NeighborsManager {
+  static Random _random = Random();
+
+  final List<List<Cell>> _grid;
+  final List<Cell> _buffer;
+  final Point _position;
+  final int _radius;
+
+  int _freeIndex;
+  int _occupiedIndex = -1;
+  bool _isCached = false;
+
+  _NeighborsManager(this._grid, this._buffer, this._position, this._radius) {
+    _freeIndex = _buffer.length;
+  }
+
+  Cell getRandomFreeCell() {
+    if(!_isCached)
+      _populateNeighbors();
+
+    if(_freeIndex == _buffer.length) //No free cells
+      return null;
+    
+    final randomIndex = (_random.nextInt(_buffer.length) + _freeIndex).clamp(_freeIndex, _buffer.length - 1);
+
+    return _buffer[randomIndex];
+  }
+
+  Cell getRandomOccupiedCell() {
+    if(!_isCached)
+      _populateNeighbors();
+    
+    return _buffer[_random.nextInt(_occupiedIndex + 1)];
+  }
+
+  List<Cell> filterOccupied(bool test(Cell c)) {
+    if(!_isCached)
+      _populateNeighbors();
+
+    //TODO: Still need to avoid using a growable list
+    final result = List<Cell>();
+
+    for(int i = 0; i <= _occupiedIndex; i++) {
+      if(test(_buffer[i]))
+        result.add(_buffer[i]);
+    }
+
+    return result;
+  }
+
+  void _populateNeighbors() {
+    final xLo = max(0, _position.x - _radius);
+    final yLo = max(0, _position.y - _radius);
+    final xHi = min(_position.x + _radius, _grid.length - 1);
+    final yHi = min(_position.y + _radius, _grid[0].length - 1);
 
     for (var x = xLo; x <= xHi; ++x) {
       for (var y = yLo; y <= yHi; ++y) {
-        if (x != pos.x || y != pos.y) {
-          yield _grid[x][y];
+        if (x != _position.x || y != _position.y) {
+          final cell = _grid[x][y];
+
+          if(cell.isFree)
+            _buffer[--_freeIndex] = cell;
+          else
+            _buffer[++_occupiedIndex] = cell;
         }
       }
     }
+
+    _isCached = true;
   }
 }

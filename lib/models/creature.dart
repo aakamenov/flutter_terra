@@ -17,6 +17,8 @@ class ProcessResult {
 }
 
 class Creature {
+  static Random _random = Random();
+
   ///The creature's type. Must be a unique value for the terrarium.
   final String type;
   ///Energy level that a creature has at the start of its life. 
@@ -124,11 +126,11 @@ class Creature {
     gainEnergyOnWait: c.gainEnergyOnWait,
     waitEnergyModifier: c.waitEnergyModifier);
 
-  ProcessResult process(Iterable<Cell> neighbors) {
+  ProcessResult process(_NeighborsManager manager) {
     if(_energy > maxEnergy * reproduceLevel)
-      return _reproduce(neighbors.toSet());
+      return _reproduce(manager);
     else if(energy > maxEnergy * moveLevel) 
-      return _move(neighbors.toSet());
+      return _move(manager);
 
     return ProcessResult.none();
   }
@@ -140,55 +142,38 @@ class Creature {
       _energy -= 5;
   }
 
-  ProcessResult _reproduce(Set<Cell> neighbors) {
-    neighbors.retainWhere((c) { return c.isFree; });
+  ProcessResult _reproduce(_NeighborsManager manager) {
+    final cell = manager.getRandomFreeCell();
 
-    if(neighbors.length > 0) {
-      if(neighbors.length == 1) {
-        return ProcessResult(ProcessAction.reproduce, neighbors.first.position);
-      } else {
-        final random = Random();
-        final position = neighbors.elementAt(random.nextInt(neighbors.length)).position;
-
-        return ProcessResult(ProcessAction.reproduce, position);
-      }
+    if(cell != null) {
+        return ProcessResult(ProcessAction.reproduce, cell.position);
     }
 
     return ProcessResult.none();
   }
 
-  ProcessResult _move(Set<Cell> neighbors) {
-    var action = ProcessAction.eat;
-    
-    neighbors.retainWhere((c) {
-      if(c.creature != null)
+  ProcessResult _move(_NeighborsManager manager) {  
+    final edibleCreatures = manager.filterOccupied((c) {
         return c.creature.size < size;
-
-      return false;
     });
 
     //If there's not enough food, try to move
-    if(neighbors.length < sustainability) {
-      action = ProcessAction.move;
-      neighbors.retainWhere((c) { return c.isFree; });
-    }
+    if(edibleCreatures.length < sustainability) {
+      final cell = manager.getRandomFreeCell();
 
-    if(neighbors.length > 0) {
-      if(neighbors.length == 1) {
-        return ProcessResult(action, neighbors.first.position);
-      } else {
-        final random = Random();
-        final position = neighbors.elementAt(random.nextInt(neighbors.length)).position;
-
-        return ProcessResult(action, position);
+      if(cell != null) {
+        return ProcessResult(ProcessAction.move, cell.position);
       }
-    }
 
-    return ProcessResult.none();
+      return ProcessResult.none();
+    } else {
+      final cell = edibleCreatures[_random.nextInt(edibleCreatures.length)];
+
+      return ProcessResult(ProcessAction.eat, cell.position);
+    }
   }
 
   static Color _generateRandomColor() {
-      final random = Random();
-      return Color.fromRGBO(random.nextInt(256), random.nextInt(256), random.nextInt(256), 1.0);
+      return Color.fromRGBO(_random.nextInt(256), _random.nextInt(256), _random.nextInt(256), 1.0);
   }
 }
