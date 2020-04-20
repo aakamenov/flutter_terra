@@ -20,7 +20,7 @@ class GridPainter extends CustomPainter {
           continue;
         }
 
-        final rect = Offset(cellSize.width * x.toDouble(), cellSize.height * y.toDouble()) & cellSize;
+        final rect = Offset(cellSize.width * y.toDouble(), cellSize.height * x.toDouble()) & cellSize;
         
         final paint = Paint();
         paint.color = cell.color;
