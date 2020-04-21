@@ -16,7 +16,7 @@ class SimulationPage extends StatelessWidget {
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
+            onPressed: terrarium.isRunning ? null : () {
               Navigator.of(context).pushNamed(Routes.configurationPage);
             },
           )
