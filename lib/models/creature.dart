@@ -101,6 +101,7 @@ class Creature {
        assert(moveLevel >= 0.0 && moveLevel <= 1.0),
        assert(efficiency >= 0.0 && efficiency <= 1.0),
        assert(reproduceLevel >= 0.0 && reproduceLevel <= 1.0) {
+    _maxEnergy = maxEnergy;
     this.initialEnergy = initialEnergy;
     this.waitEnergyModifier = waitEnergyModifier;
     this.maxEnergy = maxEnergy;
